@@ -11,11 +11,11 @@ const Navbar = () => {
     <Stack direction="column" width="50%">
         <Stack direction="row" className='oddLinkBox'>
             <Link className='link' to="/login">LOGOWANIE</Link>
-            <Typography className='text'>Zaloguj się do serwisu</Typography>
+            <Typography fontSize="20px">Zaloguj się do serwisu</Typography>
         </Stack>
         <Stack direction="row" className='evenLinkBox'>
             <Link className='link' to="/register">REJESTRACJA</Link>
-            <Typography className='text'>Załóż konto w serwisie</Typography>
+            <Typography fontSize="20px">Załóż konto w serwisie</Typography>
         </Stack>
     </Stack>
     </Box>
