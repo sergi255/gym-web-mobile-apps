@@ -1,0 +1,26 @@
+.link {
+    text-decoration: none;
+    font-size: 32px;
+    font-weight: bold;
+    color: inherit;
+}
+
+.text {
+    font-size: 24px;
+}
+
+.oddLinkBox {
+    height: 10vh;
+    color: #ffd93b;
+    background-color: #6422b8;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.evenLinkBox {
+    height: 10vh;
+    color: #6422b8;
+    background-color: #ffffff;
+    align-items: center;
+    justify-content: space-around;
+}
