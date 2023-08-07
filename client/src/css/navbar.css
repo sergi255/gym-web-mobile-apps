@@ -20,3 +20,11 @@
     align-items: center;
     justify-content: space-around;
 }
+
+.fullLinkBox {
+    height: 7vh;
+    color: #6422b8;
+    background-color: #ffffff;
+    align-items: center;
+    justify-content: space-evenly;
+}

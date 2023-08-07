@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, Grid, Typography, TextField, Stack } from '@mui/material';
-import '../css/login.css';
+import '../css/register.css';
 
-const Login = () => {
+const Register = () => {
   return (
     <Box width="50%">
         <Grid container className="stack">
@@ -10,6 +10,22 @@ const Login = () => {
                 <form>
                     <Stack direction="column">
                         <Stack direction="row" alignItems="center">
+                            <Typography variant="h5" mr="20px" fontWeight="600">EMAIL</Typography>
+                            <TextField
+                                label="Email"
+                                fullWidth
+                                margin="normal"
+                                InputProps={{
+                                style: {
+                                    background: 'white',
+                                    border: 'none',
+                                    height: '40px',
+                                    borderRadius: '20px',
+                                },
+                                }}
+                            />
+                            </Stack>
+                            <Stack direction="row" alignItems="center">
                             <Typography variant="h5" mr="20px" fontWeight="600">LOGIN</Typography>
                             <TextField
                                 label="Login"
@@ -43,8 +59,8 @@ const Login = () => {
                             />
                             </Stack>
                             <Box display="flex" justifyContent="flex-end">                        
-                                <button  type="submit" className="loginButton">
-                                    LOGOWANIE
+                                <button  type="submit" className="registerButton">
+                                    REJESTRACJA
                                 </button>
                             </Box>
                         </Stack>
@@ -55,4 +71,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
