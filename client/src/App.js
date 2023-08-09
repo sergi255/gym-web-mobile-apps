@@ -8,6 +8,8 @@ import Register from './pages/Register'
 import Training from './pages/Training'
 import Exercise from './pages/Exercise'
 import Profil from './pages/Profil'
+import BrowseExercise from './pages/BrowseExercise'
+import Statystyki from './pages/Stats'
 
 // Components
 import Navbar from './components/Navbar'
@@ -31,6 +33,8 @@ function App() {
         <Route path="/register" element={<Register/>}/>
         <Route path="/trainings/add" element={<Training/>}/>
         <Route path="/exercises/add" element={<Exercise/>}/>
+        <Route path="/exercises/browse" element={<BrowseExercise/>}/>
+        <Route path="/stats" element={<Statystyki/>}/>
         <Route path="/profile" element={<Profil/>}/>
       </Routes>
     </Box>
