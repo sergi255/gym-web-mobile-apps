@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Grid, Typography, TextField, Stack } from '@mui/material';
+import { Box, Grid, TextField, Stack } from '@mui/material';
 import '../css/register.css';
 
 const BrowseExercise = () => {
