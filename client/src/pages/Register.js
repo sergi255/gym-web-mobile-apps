@@ -12,16 +12,34 @@ const Register = () => {
     const handleRegister= async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post(apiUrl, { email, login, password });
+            const response = await axios.post(apiUrl, {
+                email: email,
+                login: login,
+                password: password
+            }, {
+                headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+
             if (response.status === 200) {
                 alert('User created successfully.');
             } 
             else {
-                alert('Failed to log in. Please try again.');
+                alert('Failed to register.');
             }
+
         } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to log in. Please try again.');
+            if (error.response && error.response.status === 422) {
+                alert('Input data cannot be empty.');
+            }
+            else if(error.response && error.response.status === 409){
+                alert('User already exists.');
+            } 
+            else {
+                console.error('Error:', error);
+                alert('Failed to register. Please try again.');
+            }
         }
         setEmail('');
         setLogin('');

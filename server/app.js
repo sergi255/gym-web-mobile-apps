@@ -2,11 +2,22 @@ const express = require('express');
 const app = express();
 const port = 3001;
 const pg = require('pg');
-const expressJwt = require('express-jwt');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+
+const cors = require('cors');
 
 require('dotenv').config();
 
-const connectionString = {
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+const DBConnectionString = {
   host: process.env.DB_SERVER,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -16,16 +27,15 @@ const connectionString = {
   ssl: true
 };
 
-const client = new pg.Client(connectionString)
+const client = new pg.Client(DBConnectionString)
 
-const secretKey = 'secretKeyHere';
-//const verifyToken = expressJwt({ secret: secretKey, algorithms: ['HS256'] });
+const secretKey = crypto.randomBytes(32).toString('hex');
 
 client.connect(err => {
   if (err) {
       console.error('Error connecting to database:', err);
   } else { 
-      app.use(express.json());
+      
       app.listen(port, () => {
         console.log(`Server is running on port ${port}`);
       });
@@ -34,33 +44,40 @@ client.connect(err => {
   }
 });
 
+app.use(cors(corsOptions));
+app.use(express.json());
+
 function queryDatabase() {
   const createTableQuery = `
       CREATE TABLE IF NOT EXISTS users (
           id SERIAL PRIMARY KEY,
           email VARCHAR(50) UNIQUE,
           login VARCHAR(50) UNIQUE,
-          password VARCHAR(50)
+          password VARCHAR
       );
   `;
 
   client
       .query(createTableQuery)
       .then(() => {
-          console.log('Table checked or created successfully!');
+          console.log('Database setup successfull');
       })
       .catch(err => console.log(err));
 }
 
-app.post('/login', async (req, res) => {
+app.post('/users/login', async (req, res) => {
   try {
     const { login, password } = req.body;
 
-    const query = `SELECT * FROM "users" WHERE login = ${1}`;
+    if (login.length === 0 || password.length === 0) {
+      return res.status(422).json({ message: 'Invalid credentials' });
+    }
+
+    const query = `SELECT * FROM "users" WHERE login = $1`;
     const result = await client.query(query, [login]);
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     const user = result.rows[0];
@@ -70,21 +87,21 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid password' });
     }
 
-    const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id, userLogin: user.login }, secretKey, { expiresIn: '1h' });
 
     res.status(200).json({ token });
   } catch (error) {
-    console.error('Error during login:', error);
+    console.error('Error during login.', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-app.post('/register', async (req, res) => {
+app.post('/users/register', async (req, res) => {
   try {
     const { email, login, password } = req.body;
 
     if (email.length === 0 || login.length === 0 || password.length === 0) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(422).json({ message: 'Invalid credentials' });
     }
 
     const userExistQuery = `SELECT * FROM "users" WHERE email = $1 OR login = $2`;
@@ -101,13 +118,13 @@ app.post('/register', async (req, res) => {
 
     res.status(200).json({ message: 'User created successfully' });
   } catch (error) {
-    console.error('Error during registration:', error);
+    console.error('Error during registration.', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
 //  Chronione zasoby - za pomocą verifyToken należy sprawdzać 
-//  czy żądanie pochodzi od zweryfikowanego użytkownika(prawie w każdym endpoincie)
+//  czy żądanie pochodzi od zweryfikowanego użytkownika(należy użyć w prawie każdym endpoincie)
 // app.get('/protected-resource', verifyToken, (req, res) => {
 //   // Tutaj możesz dostępować do req.user.userId, który zawiera ID użytkownika z tokena
 //   res.status(200).json({ message: 'Protected resource accessed successfully' });

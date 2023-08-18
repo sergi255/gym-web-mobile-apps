@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Box, Stack, Typography, Menu, MenuItem } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 import '../css/navbar.css'
 
@@ -11,7 +12,21 @@ const Navbar = () => {
   const [anchorEl1, setAnchorEl1] = useState(null);
   const [anchorEl2, setAnchorEl2] = useState(null);
 
+  
+  useEffect(() => {
+    const token = Cookies.get('session_data');
+    if (token) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
+
+  useEffect(() => {
+  }, [isLoggedIn]);
+
   const handleLogout= () => {
+    Cookies.remove('session_data');
     setIsLoggedIn(false);
   }
 
