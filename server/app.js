@@ -2,10 +2,9 @@ const express = require('express');
 const app = express();
 const port = 3001;
 const pg = require('pg');
+const expressJwt = require('express-jwt');
 
 require('dotenv').config();
-
-
 
 const connectionString = {
   host: process.env.DB_SERVER,
@@ -18,6 +17,9 @@ const connectionString = {
 };
 
 const client = new pg.Client(connectionString)
+
+const secretKey = 'secretKeyHere';
+//const verifyToken = expressJwt({ secret: secretKey, algorithms: ['HS256'] });
 
 client.connect(err => {
   if (err) {
@@ -32,66 +34,81 @@ client.connect(err => {
   }
 });
 
-
 function queryDatabase() {
-    const query = `
-        DROP TABLE IF EXISTS inventory;
-        CREATE TABLE inventory (id serial PRIMARY KEY, name VARCHAR(50), quantity INTEGER);
-        INSERT INTO inventory (name, quantity) VALUES ('banana', 150);
-        INSERT INTO inventory (name, quantity) VALUES ('orange', 154);
-        INSERT INTO inventory (name, quantity) VALUES ('apple', 100);
-    `;
+  const createTableQuery = `
+      CREATE TABLE IF NOT EXISTS users (
+          id SERIAL PRIMARY KEY,
+          email VARCHAR(50) UNIQUE,
+          login VARCHAR(50) UNIQUE,
+          password VARCHAR(50)
+      );
+  `;
 
-    client
-        .query(query)
-        .then(() => {
-            console.log('Table created successfully!');
-        })
-        .catch(err => console.log(err))
+  client
+      .query(createTableQuery)
+      .then(() => {
+          console.log('Table checked or created successfully!');
+      })
+      .catch(err => console.log(err));
 }
 
-// app.get('/createUserTable', (req, res) => {
-//   const createUserTableQuery = `
-//     CREATE TABLE IF NOT EXISTS [User] (
-//       UserID INT PRIMARY KEY,
-//       FirstName VARCHAR(50),
-//       LastName VARCHAR(50),
-//       Email VARCHAR(100) UNIQUE,
-//       PasswordHash VARCHAR(100),
-//       CreatedAt DATETIME DEFAULT GETDATE()
-//     );
-//   `;
+app.post('/login', async (req, res) => {
+  try {
+    const { login, password } = req.body;
 
-//   pool.request().query(createUserTableQuery, (err, result) => {
-//     if (err) {
-//       console.error('Error creating User table:', err);
-//       res.status(500).send('Error creating User table');
-//     } else {
-//       console.log('User table created or already exists');
-//       res.send('User table created or already exists');
-//     }
-//   });
-// });
+    const query = `SELECT * FROM "users" WHERE login = ${1}`;
+    const result = await client.query(query, [login]);
 
-// app.post('/addUser', (req, res) => {
-//   const { userID, firstName, lastName, email, passwordHash } = req.body;
+    if (result.rows.length === 0) {
+      return res.status(401).json({ message: 'User not found' });
+    }
 
-//   const addUserQuery = `
-//     INSERT INTO [User] (UserID, FirstName, LastName, Email, PasswordHash)
-//     VALUES (${userID}, '${firstName}', '${lastName}', '${email}', '${passwordHash}');
-//   `;
+    const user = result.rows[0];
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
-//   pool.request().query(addUserQuery, (err, result) => {
-//     if (err) {
-//       console.error('Error adding user:', err);
-//       res.status(500).send('Error adding user');
-//     } else {
-//       console.log('User added successfully');
-//       res.send('User added successfully');
-//     }
-//   });
-// });
+    if (!passwordMatch) {
+      return res.status(401).json({ message: 'Invalid password' });
+    }
 
-// app.get('/', (req, res) => {
-//   res.send('e, dyszak!');
+    const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.post('/register', async (req, res) => {
+  try {
+    const { email, login, password } = req.body;
+
+    if (email.length === 0 || login.length === 0 || password.length === 0) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const userExistQuery = `SELECT * FROM "users" WHERE email = $1 OR login = $2`;
+    const userExistResult = await client.query(userExistQuery, [email, login]);
+
+    if (userExistResult.rows.length > 0) {
+      return res.status(409).json({ message: 'User already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const insertQuery = `INSERT INTO "users" (email, login, password) VALUES ($1, $2, $3)`;
+    await client.query(insertQuery, [email, login, hashedPassword]);
+
+    res.status(200).json({ message: 'User created successfully' });
+  } catch (error) {
+    console.error('Error during registration:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+//  Chronione zasoby - za pomocą verifyToken należy sprawdzać 
+//  czy żądanie pochodzi od zweryfikowanego użytkownika(prawie w każdym endpoincie)
+// app.get('/protected-resource', verifyToken, (req, res) => {
+//   // Tutaj możesz dostępować do req.user.userId, który zawiera ID użytkownika z tokena
+//   res.status(200).json({ message: 'Protected resource accessed successfully' });
 // });

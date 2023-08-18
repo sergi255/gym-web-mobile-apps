@@ -7,7 +7,7 @@ import '../css/navbar.css'
 
 const Navbar = () => {
   const location = useLocation();
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [anchorEl1, setAnchorEl1] = useState(null);
   const [anchorEl2, setAnchorEl2] = useState(null);
 

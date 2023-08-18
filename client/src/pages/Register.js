@@ -1,9 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Grid, Typography, TextField, Stack } from '@mui/material';
 import '../css/register.css';
+import axios from 'axios'
 
 const Register = () => {
-  return (
+    const [email, setEmail] = useState('');
+    const [login, setLogin] = useState('');
+    const [password, setPassword] = useState('');
+    const apiUrl = `http://localhost:3001/users/register`;
+
+    const handleRegister= async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post(apiUrl, { email, login, password });
+            if (response.status === 200) {
+                alert('User created successfully.');
+            } 
+            else {
+                alert('Failed to log in. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to log in. Please try again.');
+        }
+        setEmail('');
+        setLogin('');
+        setPassword('');
+    };
+
+    return (
     <Box width="50%">
         <Grid container className="stack">
             <Box className="formBox">
@@ -15,6 +40,8 @@ const Register = () => {
                                 label="Email"
                                 fullWidth
                                 margin="normal"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 InputProps={{
                                 style: {
                                     background: 'white',
@@ -31,6 +58,8 @@ const Register = () => {
                                 label="Login"
                                 fullWidth
                                 margin="normal"
+                                value={login}
+                                onChange={(e) => setLogin(e.target.value)}
                                 InputProps={{
                                 style: {
                                     background: 'white',
@@ -48,6 +77,8 @@ const Register = () => {
                                 fullWidth
                                 margin="normal"
                                 type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 InputProps={{
                                 style: {
                                     background: 'white',
@@ -59,7 +90,7 @@ const Register = () => {
                             />
                             </Stack>
                             <Box display="flex" justifyContent="flex-end">                        
-                                <button  type="submit" className="registerButton">
+                                <button  type="submit" className="registerButton" onClick={handleRegister}>
                                     REJESTRACJA
                                 </button>
                             </Box>
@@ -68,7 +99,7 @@ const Register = () => {
             </Box>
         </Grid>
     </Box>
-  );
+    );
 };
 
 export default Register;
