@@ -40,29 +40,101 @@ client.connect(err => {
         console.log(`Server is running on port ${port}`);
       });
       console.log('Connected to database');
-      queryDatabase();
+      setupDatabase();
   }
 });
 
 app.use(cors(corsOptions));
 app.use(express.json());
 
-function queryDatabase() {
-  const createTableQuery = `
-      CREATE TABLE IF NOT EXISTS users (
-          id SERIAL PRIMARY KEY,
-          email VARCHAR(50) UNIQUE,
-          login VARCHAR(50) UNIQUE,
-          password VARCHAR
-      );
-  `;
+function setupDatabase() {
+  const setupDatabaseQuery = `
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    login VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255),
+    first_name VARCHAR(255),
+    age INTEGER,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    height DECIMAL(5, 2),
+    weight DECIMAL(5, 2),
+    gender VARCHAR(1),
+    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
 
+  CREATE TABLE IF NOT EXISTS category (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS exercise (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255),
+    category_id INTEGER REFERENCES category(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS training (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    duration INTERVAL,
+    description VARCHAR(255),
+    user_id INTEGER REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS training_exercise (
+    training_id INTEGER REFERENCES training(id),
+    exercise_id INTEGER REFERENCES exercise(id),
+    PRIMARY KEY (training_id, exercise_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS plan (
+    id SERIAL PRIMARY KEY,
+    date DATE NOT NULL,
+    user_id INTEGER REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS plan_training (
+    training_id INTEGER REFERENCES training(id),
+    plan_id INTEGER REFERENCES plan(id),
+    PRIMARY KEY (training_id, plan_id)
+  );  
+
+  CREATE TABLE IF NOT EXISTS performed_exercises (
+    id SERIAL PRIMARY KEY,
+    set_amount INT NOT NULL,
+    rep_amount INT NOT NULL,
+    training_id INTEGER REFERENCES training(id),
+    exercise_id INTEGER REFERENCES exercise(id)
+    
+  );
+  
+`;
+//plan_training_id INTEGER REFERENCES plan_training(plan_id) z tabeli performed exercises
   client
-      .query(createTableQuery)
+      .query(setupDatabaseQuery)
       .then(() => {
           console.log('Database setup successfull');
       })
       .catch(err => console.log(err));
+}
+
+function verifyToken(req, res, next) {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'You are unauthorized - no access' });
+  }
+
+  jwt.verify(token, secretKey, (err, decodedToken) => {
+    if (err) {
+      return res.status(403).json({ message: 'Token verification failed' });
+    }
+
+    req.user = decodedToken;
+    next();
+  });
 }
 
 app.post('/users/login', async (req, res) => {
