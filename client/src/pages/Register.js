@@ -11,6 +11,10 @@ const Register = () => {
 
     const handleRegister= async (e) => {
         e.preventDefault();
+        if (!email || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+            alert('Email field is invalid.');
+            return;
+          }
         try {
             const response = await axios.post(apiUrl, {
                 email: email,

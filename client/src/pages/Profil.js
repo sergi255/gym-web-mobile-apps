@@ -1,8 +1,140 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Box, Grid, Typography, TextField, Stack } from '@mui/material';
+import axios from 'axios';
 import '../css/register.css';
 
 const Profil = () => {
+    const [login, setLogin] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [height, setHeight] = useState('');
+    const [weight, setWeight] = useState('');
+    const [age, setAge] = useState('');
+    const [gender, setGender] = useState('');
+    const [token, setToken] = useState('');
+
+    const getUserUrl = `http://localhost:3001/getUser`;
+    const saveDataUrl = `http://localhost:3001/saveUser`;
+
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) {
+          return parts.pop().split(';').shift();
+        }
+      };
+
+    const getUserData = async () => {
+        try {
+            const response = await axios.get(getUserUrl, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });              
+
+          if (response.status === 200) {
+            const userData = response.data;
+            setLogin(userData.login);
+            setFirstName(userData.first_name);
+            setLastName(userData.last_name);
+            setEmail(userData.email);
+            setHeight(userData.height);
+            setWeight(userData.weight);
+            setAge(userData.age);
+            setGender(userData.gender);
+          } else {
+            alert('Failed to fetch user data.');
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          alert('Failed to fetch user data.');
+        }
+      };
+      
+      const saveData = async (e) => {
+        e.preventDefault();
+    
+        const validationErrors = [];
+    
+        if (!login) {
+          validationErrors.push('Login field is required.');
+        }
+    
+        if (!email || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+          validationErrors.push('Email field is invalid.');
+        }
+    
+        if (!firstName || !/^[A-Za-z]+$/.test(firstName)) {
+          validationErrors.push('First name field is invalid. Only letters are allowed.');
+        }
+    
+        if (!lastName || !/^[A-Za-z]+$/.test(lastName)) {
+          validationErrors.push('Last name field is invalid. Only letters are allowed.');
+        }
+    
+        if (isNaN(age)) {
+          validationErrors.push('Age field is invalid. Must be a number.');
+        }
+    
+        if (isNaN(weight)) {
+          validationErrors.push('Weight field is invalid. Must be a number.');
+        }
+    
+        if (isNaN(height)) {
+          validationErrors.push('Height field is invalid. Must be a number.');
+        }
+    
+        if (!/^[MK]$/.test(gender)) {
+          validationErrors.push('Gender field is invalid. Must be "M" or "K".');
+        }
+    
+        if (validationErrors.length > 0) {
+          alert('Validation errors:\n' + validationErrors.join('\n'));
+          return;
+        }
+    
+        try {
+          const response = await axios.put(
+            saveDataUrl,
+            {
+              login,
+              email,
+              last_name: lastName,
+              first_name: firstName,
+              age,
+              height,
+              weight,
+              gender,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+    
+          if (response.status === 200) {
+            alert('User data saved successfully.');
+          } else {
+            alert('Failed to save user data.');
+          }
+        } catch (error) {
+          console.error('Error saving user data:', error);
+          alert('Failed to save user data.');
+        }
+      };
+
+    useEffect(() => {
+        const sessionData = getCookie('session_data');
+        if(sessionData) {
+            setToken(sessionData)
+        }
+        if (token) {
+          getUserData();
+        }
+      }, [token]);
+
   return (
     <Stack direction="row" marginTop="2%">
   <Box width="50%">
@@ -11,10 +143,12 @@ const Profil = () => {
               <form>
                   <Stack direction="column">
                       <Stack direction="row" alignItems="center">
-                          <Typography variant="h5" mr="20px" fontWeight="600">NAZWA</Typography>
+                          <Typography variant="h5" mr="20px" fontWeight="600">LOGIN</Typography>
                           <TextField
                               fullWidth
                               margin="normal"
+                              value={login}
+                              onChange={(e) => setLogin(e.target.value)}
                               InputProps={{
                               style: {
                                   background: 'white',
@@ -30,6 +164,8 @@ const Profil = () => {
                           <TextField
                               fullWidth
                               margin="normal"
+                              value={firstName}
+                              onChange={(e) => setFirstName(e.target.value)}
                               InputProps={{
                               style: {
                                   background: 'white',
@@ -45,6 +181,8 @@ const Profil = () => {
                           <TextField
                               fullWidth
                               margin="normal"
+                              value={lastName}
+                              onChange={(e) => setLastName(e.target.value)}
                               InputProps={{
                               style: {
                                   background: 'white',
@@ -60,21 +198,8 @@ const Profil = () => {
                           <TextField
                               fullWidth
                               margin="normal"
-                              InputProps={{
-                              style: {
-                                  background: 'white',
-                                  border: 'none',
-                                  height: '40px',
-                                  borderRadius: '20px',
-                              },
-                              }}
-                          />
-                          </Stack>
-                          <Stack direction="row" alignItems="center">
-                          <Typography variant="h5" mr="20px" fontWeight="600">HASŁO</Typography>
-                          <TextField
-                              fullWidth
-                              margin="normal"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
                               InputProps={{
                               style: {
                                   background: 'white',
@@ -105,6 +230,8 @@ const Profil = () => {
                       <TextField
                           fullWidth
                           margin="normal"
+                          value={height}
+                          onChange={(e) => setHeight(e.target.value)}
                           InputProps={{
                           style: {
                               background: 'white',
@@ -120,6 +247,8 @@ const Profil = () => {
                       <TextField
                           fullWidth
                           margin="normal"
+                          value={weight}
+                          onChange={(e) => setWeight(e.target.value)}
                           InputProps={{
                           style: {
                               background: 'white',
@@ -135,6 +264,25 @@ const Profil = () => {
                       <TextField
                           fullWidth
                           margin="normal"
+                          value={age}
+                          onChange={(e) => setAge(e.target.value)}
+                          InputProps={{
+                          style: {
+                              background: 'white',
+                              border: 'none',
+                              height: '40px',
+                              borderRadius: '20px',
+                          },
+                          }}
+                      />
+                      </Stack>
+                      <Stack direction="row" alignItems="center">
+                      <Typography variant="h5" mr="20px" fontWeight="600">PŁEĆ</Typography>
+                      <TextField
+                          fullWidth
+                          margin="normal"
+                          value={gender}
+                          onChange={(e) => setGender(e.target.value)}
                           InputProps={{
                           style: {
                               background: 'white',
@@ -146,7 +294,7 @@ const Profil = () => {
                       />
                       </Stack>
                       <Box display="flex" justifyContent="flex-end">                        
-                          <button  type="submit" className="registerButton">
+                          <button  type="submit" className="registerButton" onClick={saveData}>
                               ZAPISZ DANE
                           </button>
                       </Box>

@@ -49,69 +49,70 @@ app.use(express.json());
 
 function setupDatabase() {
   const setupDatabaseQuery = `
-  CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    login VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255),
-    first_name VARCHAR(255),
-    age INTEGER,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    height DECIMAL(5, 2),
-    weight DECIMAL(5, 2),
-    gender VARCHAR(1),
-    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      login VARCHAR(255) NOT NULL UNIQUE,
+      password VARCHAR(255) NOT NULL,
+      last_name VARCHAR(255),
+      first_name VARCHAR(255),
+      age INTEGER,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      height DECIMAL(5, 2),
+      weight DECIMAL(5, 2),
+      gender VARCHAR(1),
+      registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
 
-  CREATE TABLE IF NOT EXISTS category (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
-  );
+    CREATE TABLE IF NOT EXISTS category (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL
+    );
 
-  CREATE TABLE IF NOT EXISTS exercise (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description VARCHAR(255),
-    category_id INTEGER REFERENCES category(id)
-  );
+    CREATE TABLE IF NOT EXISTS exercise (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      description VARCHAR(255),
+      category_id INTEGER REFERENCES category(id)
+    );
 
-  CREATE TABLE IF NOT EXISTS training (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    duration INTERVAL,
-    description VARCHAR(255),
-    user_id INTEGER REFERENCES users(id)
-  );
+    CREATE TABLE IF NOT EXISTS training (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      date DATE NOT NULL,
+      begin_time TIME NOT NULL,
+      end_time TIME NOT NULL,
+      description VARCHAR(255),
+      user_id INTEGER REFERENCES users(id)
+    );
 
-  CREATE TABLE IF NOT EXISTS training_exercise (
-    training_id INTEGER REFERENCES training(id),
-    exercise_id INTEGER REFERENCES exercise(id),
-    PRIMARY KEY (training_id, exercise_id)
-  );
+    CREATE TABLE IF NOT EXISTS training_exercise (
+      training_id INTEGER REFERENCES training(id),
+      exercise_id INTEGER REFERENCES exercise(id),
+      PRIMARY KEY (training_id, exercise_id)
+    );
 
-  CREATE TABLE IF NOT EXISTS plan (
-    id SERIAL PRIMARY KEY,
-    date DATE NOT NULL,
-    user_id INTEGER REFERENCES users(id)
-  );
+    CREATE TABLE IF NOT EXISTS plan (
+      id SERIAL PRIMARY KEY,
+      date DATE NOT NULL,
+      user_id INTEGER REFERENCES users(id)
+    );
 
-  CREATE TABLE IF NOT EXISTS plan_training (
-    training_id INTEGER REFERENCES training(id),
-    plan_id INTEGER REFERENCES plan(id),
-    PRIMARY KEY (training_id, plan_id)
-  );  
+    CREATE TABLE IF NOT EXISTS plan_training (
+      training_id INTEGER REFERENCES training(id),
+      plan_id INTEGER REFERENCES plan(id),
+      PRIMARY KEY (training_id, plan_id)
+    );  
 
-  CREATE TABLE IF NOT EXISTS performed_exercises (
-    id SERIAL PRIMARY KEY,
-    set_amount INT NOT NULL,
-    rep_amount INT NOT NULL,
-    training_id INTEGER REFERENCES training(id),
-    exercise_id INTEGER REFERENCES exercise(id)
-    
-  );
-  
+    CREATE TABLE IF NOT EXISTS performed_exercises (
+      id SERIAL PRIMARY KEY,
+      set_amount INT NOT NULL,
+      rep_amount INT NOT NULL,
+      training_id INTEGER REFERENCES training(id),
+      exercise_id INTEGER REFERENCES exercise(id)
+      
+    );
 `;
-//plan_training_id INTEGER REFERENCES plan_training(plan_id) z tabeli performed exercises
+  //plan_training_id INTEGER REFERENCES plan_training(plan_id) z tabeli performed exercises
   client
       .query(setupDatabaseQuery)
       .then(() => {
@@ -122,16 +123,13 @@ function setupDatabase() {
 
 function verifyToken(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1];
-
   if (!token) {
-    return res.status(401).json({ message: 'You are unauthorized - no access' });
+    return res.status(401).json({ message: 'User unauthorized - no access' });
   }
-
   jwt.verify(token, secretKey, (err, decodedToken) => {
     if (err) {
       return res.status(403).json({ message: 'Token verification failed' });
     }
-
     req.user = decodedToken;
     next();
   });
@@ -176,6 +174,10 @@ app.post('/users/register', async (req, res) => {
       return res.status(422).json({ message: 'Invalid credentials' });
     }
 
+    if (!email || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+      return res.status(422).json({ message: 'Invalid email' });
+    }
+
     const userExistQuery = `SELECT * FROM "users" WHERE email = $1 OR login = $2`;
     const userExistResult = await client.query(userExistQuery, [email, login]);
 
@@ -195,6 +197,85 @@ app.post('/users/register', async (req, res) => {
   }
 });
 
+app.get('/getUser', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const query = `SELECT * FROM "users" WHERE id = $1`;
+    const result = await client.query(query, [userId]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const user = result.rows[0];
+    const userData = {
+      id: user.id,
+      login: user.login,
+      last_name: user.last_name,
+      first_name: user.first_name,
+      age: user.age,
+      email: user.email,
+      height: user.height,
+      weight: user.weight,
+      gender: user.gender,
+    };
+    res.status(200).json(userData);
+  } catch (error) {
+    console.error('Error getting user:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+app.put('/saveUser', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { last_name, first_name, age, height, weight, gender } = req.body;
+
+    if (!/^[A-Za-z]+$/.test(first_name) || !/^[A-Za-z]+$/.test(last_name)) {
+      return res.status(400).json({ message: 'First name and last name must contain only letters' });
+    }
+    
+    if (!/^[0-9]+$/.test(age) || !/^[0-9]+$/.test(height) || !/^[0-9]+$/.test(weight)) {
+      return res.status(400).json({ message: 'Age, height, and weight must be numbers' });
+    }
+
+    if (!/^[M|K]$/.test(gender)) {
+      return res.status(400).json({ message: 'Gender must be "M" or "K"' });
+    }
+
+    const updateQuery = `
+      UPDATE "users" SET last_name = $1, first_name = $2, age = $3, height = $4, weight = $5, gender = $6 WHERE id = $7
+    `;
+
+    await client.query(updateQuery, [last_name, first_name, age, height, weight, gender, userId]);
+
+    res.status(200).json({ message: 'User data updated successfully' });
+  } catch (error) {
+    console.error('Error updating user data:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.post('/trainings/add', verifyToken, async (req, res) => {
+  try{
+    const {name, date, beginTime, endTime, description} = req.body;
+
+    const userId = req.user.userId;
+
+    if (name.length === 0 || date.length === 0 || beginTime.length === 0 || endTime.length === 0 || description.length === 0) {
+      return res.status(422).json({ message: 'Invalid credentials' });
+    }
+
+    const insertQuery = `INSERT INTO "training" (name, date, begin_time, end_time, description, user_id) VALUES ($1, $2, $3, $4, $5, userId)`;
+    await client.query(insertQuery, [name, date, beginTime, endTime, description, userId]);
+
+    res.status(200).json({ message: 'Training added successfully' });
+  } catch(error){
+    console.error('Error adding training');
+    res.status(500).json({ message: 'Internal server error' });
+  }
+
+});
 //  Chronione zasoby - za pomocą verifyToken należy sprawdzać 
 //  czy żądanie pochodzi od zweryfikowanego użytkownika(należy użyć w prawie każdym endpoincie)
 // app.get('/protected-resource', verifyToken, (req, res) => {
