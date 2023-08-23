@@ -197,7 +197,7 @@ app.post('/users/register', async (req, res) => {
   }
 });
 
-app.get('/getUser', verifyToken, async (req, res) => {
+app.get('/users/getUser', verifyToken, async (req, res) => {
   try {
     const userId = req.user.userId;
     const query = `SELECT * FROM "users" WHERE id = $1`;
@@ -226,16 +226,16 @@ app.get('/getUser', verifyToken, async (req, res) => {
 });
 
 
-app.put('/saveUser', verifyToken, async (req, res) => {
+app.put('/users/saveUser', verifyToken, async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { last_name, first_name, age, height, weight, gender } = req.body;
 
+    const { last_name, first_name, age, height, weight, gender } = req.body;
     if (!/^[A-Za-z]+$/.test(first_name) || !/^[A-Za-z]+$/.test(last_name)) {
       return res.status(400).json({ message: 'First name and last name must contain only letters' });
     }
     
-    if (!/^[0-9]+$/.test(age) || !/^[0-9]+$/.test(height) || !/^[0-9]+$/.test(weight)) {
+    if (!/^[0-9]+$/.test(age) || !/^[0-9]+(\.[0-9]+)?$/.test(height) || !/^[0-9]+(\.[0-9]+)?$/.test(weight)) {
       return res.status(400).json({ message: 'Age, height, and weight must be numbers' });
     }
 
@@ -243,15 +243,28 @@ app.put('/saveUser', verifyToken, async (req, res) => {
       return res.status(400).json({ message: 'Gender must be "M" or "K"' });
     }
 
-    const updateQuery = `
+    const query = `
       UPDATE "users" SET last_name = $1, first_name = $2, age = $3, height = $4, weight = $5, gender = $6 WHERE id = $7
     `;
 
-    await client.query(updateQuery, [last_name, first_name, age, height, weight, gender, userId]);
+    await client.query(query, [last_name, first_name, age, height, weight, gender, userId]);
 
     res.status(200).json({ message: 'User data updated successfully' });
   } catch (error) {
     console.error('Error updating user data:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.delete('/users/deleteUser', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const query = `DELETE FROM "users" WHERE id = $1`;
+    await client.query(query, [userId]);
+
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
@@ -276,9 +289,3 @@ app.post('/trainings/add', verifyToken, async (req, res) => {
   }
 
 });
-//  Chronione zasoby - za pomocą verifyToken należy sprawdzać 
-//  czy żądanie pochodzi od zweryfikowanego użytkownika(należy użyć w prawie każdym endpoincie)
-// app.get('/protected-resource', verifyToken, (req, res) => {
-//   // Tutaj możesz dostępować do req.user.userId, który zawiera ID użytkownika z tokena
-//   res.status(200).json({ message: 'Protected resource accessed successfully' });
-// });
