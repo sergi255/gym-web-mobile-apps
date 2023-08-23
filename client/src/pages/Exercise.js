@@ -1,8 +1,67 @@
-import React from 'react';
-import { Box, Grid, Typography, TextField, Stack } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Grid, Typography, TextField, Stack, Select, MenuItem } from '@mui/material';
 import '../css/register.css';
+import axios from 'axios';
 
 const Exercise = () => {
+    const [name, setName] = useState('');
+    const [part, setPart] = useState('');
+    const [description, setDescription] = useState('');
+    const [token, setToken] = useState('');
+
+    const addExerciseUrl = `http://localhost:3001/exercises/addExercise`;
+
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) {
+          return parts.pop().split(';').shift();
+        }
+      };
+
+    const addExercise = async (e) => {
+        e.preventDefault();
+        try {
+            console.log("chuj")
+            const response = await axios.post(addExerciseUrl, {
+                name: name,
+                part: part,
+                description: description
+            }, {
+                headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              }
+            });
+
+            if (response.status === 200) {
+                alert('Exercise added successfully.');
+            } 
+            else {
+                alert('Failed to add exercise.');
+            }
+
+        } catch (error) {
+            if (error.response && error.response.status === 422) {
+                alert('Input data cannot be empty.');
+            }
+            else if(error.response && error.response.status === 409){
+                alert('Exercise already exists.');
+            } 
+            else {
+                console.error('Error:', error);
+                alert('Failed to add exercise. Please try again.');
+            }
+        }
+    }
+
+    useEffect(() => {
+        const sessionData = getCookie('session_data');
+        if(sessionData) {
+            setToken(sessionData)
+        }
+      }, [token]);
+  
   return (
     <Box width="50%" marginTop="2%">
         <Grid container className="stack">
@@ -14,6 +73,8 @@ const Exercise = () => {
                             <TextField
                                 fullWidth
                                 margin="normal"
+                                value={name}
+                                onChange={(e)=>setName(e.target.value)}
                                 InputProps={{
                                 style: {
                                     background: 'white',
@@ -23,27 +84,39 @@ const Exercise = () => {
                                 },
                                 }}
                             />
-                            </Stack>
-                            <Stack direction="row" alignItems="center">
+                        </Stack>
+                        <Stack direction="row" alignItems="center">
                             <Typography variant="h5" mr="20px" fontWeight="600">Partia</Typography>
-                            <TextField
+                            <Select
                                 fullWidth
-                                margin="normal"
-                                InputProps={{
-                                style: {
-                                    background: 'white',
-                                    border: 'none',
-                                    height: '40px',
-                                    borderRadius: '20px',
-                                },
+                                value={part}
+                                onChange={(e) => setPart(e.target.value)}
+                                inputProps={{
+                                    style: {
+                                        background: 'white',
+                                        border: 'none',
+                                        height: '40px',
+                                        borderRadius: '20px',
+                                    },
                                 }}
-                            />
-                            </Stack>
-                            <Stack direction="row" alignItems="center">
+                            >
+                            <MenuItem value="1">Klatka piersiowa</MenuItem>
+                            <MenuItem value="2">Plecy</MenuItem>
+                            <MenuItem value="3">Barki</MenuItem>
+                            <MenuItem value="4">Biceps</MenuItem>
+                            <MenuItem value="5">Triceps</MenuItem>
+                            <MenuItem value="6">Brzuch</MenuItem>
+                            <MenuItem value="7">Nogi</MenuItem>
+                            <MenuItem value="8">Pośladki</MenuItem>
+                        </Select>
+                        </Stack>
+                        <Stack direction="row" alignItems="center">
                             <Typography variant="h5" mr="20px" fontWeight="600">Opis</Typography>
                             <TextField
                                 fullWidth
                                 margin="normal"
+                                value={description}
+                                onChange={(e)=>setDescription(e.target.value)}
                                 InputProps={{
                                 style: {
                                     background: 'white',
@@ -53,13 +126,13 @@ const Exercise = () => {
                                 },
                                 }}
                             />
-                            </Stack>
-                            <Box display="flex" justifyContent="flex-end">                        
-                                <button  type="submit" className="registerButton">
-                                    REJESTRACJA
-                                </button>
-                            </Box>
                         </Stack>
+                        <Box display="flex" justifyContent="flex-end">                        
+                            <button type="submit" className="registerButton" onSubmit={addExercise}>
+                                DODAJ
+                            </button>
+                        </Box>
+                    </Stack>
                 </form>
             </Box>
         </Grid>

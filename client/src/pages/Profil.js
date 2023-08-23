@@ -113,8 +113,6 @@ const Profil = () => {
       const response = await axios.put(
         saveDataUrl,
         {
-          login,
-          email,
           last_name: lastName,
           first_name: firstName,
           age,

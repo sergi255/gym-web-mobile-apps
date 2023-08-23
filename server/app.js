@@ -111,7 +111,7 @@ function setupDatabase() {
       exercise_id INTEGER REFERENCES exercise(id)
       
     );
-`;
+  `;
   //plan_training_id INTEGER REFERENCES plan_training(plan_id) z tabeli performed exercises
   client
       .query(setupDatabaseQuery)
@@ -119,6 +119,27 @@ function setupDatabase() {
           console.log('Database setup successfull');
       })
       .catch(err => console.log(err));
+
+  const checkCategoryQuery = `SELECT COUNT(*) FROM category`;
+  client.query(checkCategoryQuery)
+    .then(result => {
+      const rowCount = result.rows[0].count;
+      if (rowCount == 0) {
+        const insertCategoryQuery = `
+          INSERT INTO "category" (name) VALUES 
+          ('Klatka piersiowa'),
+          ('Plecy'),
+          ('Barki'),
+          ('Biceps'),
+          ('Triceps'),
+          ('Brzuch'),
+          ('Nogi'),
+          ('Pośladki');
+        `;
+        return client.query(insertCategoryQuery);
+      }
+    })
+    .catch(err => console.log(err));
 }
 
 function verifyToken(req, res, next) {
@@ -287,5 +308,23 @@ app.post('/trainings/add', verifyToken, async (req, res) => {
     console.error('Error adding training');
     res.status(500).json({ message: 'Internal server error' });
   }
+
+  app.post('/exercises/addExercise', verifyToken, async (req, res) => {
+    try {
+      const { name, part, description } = req.body;
+
+      if (name.length === 0 || part.length === 0 || description.length === 0) {
+        return res.status(422).json({ message: 'Invalid credentials' });
+      }
+      console.log(name)
+    const insertQuery = `INSERT INTO "exercises" (name, description, category_id) VALUES ($1, $2, $3)`;
+    await client.query(insertQuery, [name, description, part]);
+
+      res.status(200).json({ message: 'Exercise added successfully' });
+    } catch (error) {
+      console.error('Error adding exercise:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 });
