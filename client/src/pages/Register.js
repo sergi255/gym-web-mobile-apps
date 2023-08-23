@@ -73,8 +73,8 @@ const Register = () => {
                                 },
                                 }}
                             />
-                            </Stack>
-                            <Stack direction="row" alignItems="center">
+                        </Stack>
+                        <Stack direction="row" alignItems="center">
                             <Typography variant="h5" mr="20px" fontWeight="600">LOGIN</Typography>
                             <TextField
                                 label="Login"
@@ -91,8 +91,8 @@ const Register = () => {
                                 },
                                 }}
                             />
-                            </Stack>
-                            <Stack direction="row" alignItems="center">
+                        </Stack>
+                        <Stack direction="row" alignItems="center">
                             <Typography variant="h5" mr="20px" fontWeight="600">HASŁO</Typography>
                             <TextField
                                 label="Hasło"
@@ -110,13 +110,13 @@ const Register = () => {
                                 },
                                 }}
                             />
-                            </Stack>
-                            <Box display="flex" justifyContent="flex-end">                        
-                                <button  type="submit" className="registerButton" onClick={handleRegister}>
-                                    REJESTRACJA
-                                </button>
-                            </Box>
                         </Stack>
+                        <Box display="flex" justifyContent="flex-end">                        
+                            <button  type="submit" className="registerButton" onClick={handleRegister}>
+                                REJESTRACJA
+                            </button>
+                        </Box>
+                    </Stack>
                 </form>
             </Box>
         </Grid>

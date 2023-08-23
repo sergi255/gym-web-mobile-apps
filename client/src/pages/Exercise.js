@@ -8,7 +8,6 @@ const Exercise = () => {
     const [part, setPart] = useState('');
     const [description, setDescription] = useState('');
     const [token, setToken] = useState('');
-
     const addExerciseUrl = `http://localhost:3001/exercises/addExercise`;
 
     const getCookie = (name) => {
@@ -22,7 +21,6 @@ const Exercise = () => {
     const addExercise = async (e) => {
         e.preventDefault();
         try {
-            console.log("chuj")
             const response = await axios.post(addExerciseUrl, {
                 name: name,
                 part: part,
@@ -30,7 +28,6 @@ const Exercise = () => {
             }, {
                 headers: {
                 Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
               }
             });
 
@@ -53,6 +50,9 @@ const Exercise = () => {
                 alert('Failed to add exercise. Please try again.');
             }
         }
+        setName('');
+        setPart('');
+        setDescription('');
     }
 
     useEffect(() => {
@@ -74,7 +74,7 @@ const Exercise = () => {
                                 fullWidth
                                 margin="normal"
                                 value={name}
-                                onChange={(e)=>setName(e.target.value)}
+                                onChange={(e) => setName(e.target.value)}
                                 InputProps={{
                                 style: {
                                     background: 'white',
@@ -128,7 +128,7 @@ const Exercise = () => {
                             />
                         </Stack>
                         <Box display="flex" justifyContent="flex-end">                        
-                            <button type="submit" className="registerButton" onSubmit={addExercise}>
+                            <button type="submit" className="registerButton" onClick={addExercise}>
                                 DODAJ
                             </button>
                         </Box>

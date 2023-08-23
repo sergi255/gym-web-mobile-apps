@@ -65,12 +65,12 @@ function setupDatabase() {
 
     CREATE TABLE IF NOT EXISTS category (
       id SERIAL PRIMARY KEY,
-      name VARCHAR(255) NOT NULL
+      name VARCHAR(255) NOT NULL UNIQUE
     );
 
     CREATE TABLE IF NOT EXISTS exercise (
       id SERIAL PRIMARY KEY,
-      name VARCHAR(255) NOT NULL,
+      name VARCHAR(255) NOT NULL UNIQUE,
       description VARCHAR(255),
       category_id INTEGER REFERENCES category(id)
     );
@@ -246,7 +246,6 @@ app.get('/users/getUser', verifyToken, async (req, res) => {
   }
 });
 
-
 app.put('/users/saveUser', verifyToken, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -290,6 +289,31 @@ app.delete('/users/deleteUser', verifyToken, async (req, res) => {
   }
 });
 
+app.post('/exercises/addExercise', async (req, res) => {
+  try {
+    const { name, part, description } = req.body;
+
+    if (name.length === 0 || part.length === 0 || description.length === 0) {
+      return res.status(422).json({ message: 'Invalid credentials' });
+    }
+
+    const exerciseExistQuery = `SELECT * FROM "exercise" WHERE name = $1`;
+    const exerciseExistResult = await client.query(exerciseExistQuery, [name]);
+
+    if (exerciseExistResult.rows.length > 0) {
+      return res.status(409).json({ message: 'Exercise already exists' });
+    }
+    
+    const insertQuery = `INSERT INTO "exercise" (name, description, category_id) VALUES ($1, $2, $3)`;
+    await client.query(insertQuery, [name, description, part]);
+
+    res.status(200).json({ message: 'Exercise added successfully' });
+  } catch (error) {
+    console.error('Error adding exercise:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 app.post('/trainings/add', verifyToken, async (req, res) => {
   try{
     const {name, date, beginTime, endTime, description} = req.body;
@@ -307,24 +331,4 @@ app.post('/trainings/add', verifyToken, async (req, res) => {
   } catch(error){
     console.error('Error adding training');
     res.status(500).json({ message: 'Internal server error' });
-  }
-
-  app.post('/exercises/addExercise', verifyToken, async (req, res) => {
-    try {
-      const { name, part, description } = req.body;
-
-      if (name.length === 0 || part.length === 0 || description.length === 0) {
-        return res.status(422).json({ message: 'Invalid credentials' });
-      }
-      console.log(name)
-    const insertQuery = `INSERT INTO "exercises" (name, description, category_id) VALUES ($1, $2, $3)`;
-    await client.query(insertQuery, [name, description, part]);
-
-      res.status(200).json({ message: 'Exercise added successfully' });
-    } catch (error) {
-      console.error('Error adding exercise:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-
-});
+  }});
