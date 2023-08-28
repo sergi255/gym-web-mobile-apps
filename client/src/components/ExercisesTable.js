@@ -18,7 +18,6 @@ import {
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 
 function ExercisesTable(props) {
@@ -45,19 +44,19 @@ function ExercisesTable(props) {
       id: 'name',
       numeric: false,
       disablePadding: true,
-      label: 'Exercise Name',
+      label: 'Nazwa ćwiczenia',
     },
     {
       id: 'description',
       numeric: false,
       disablePadding: false,
-      label: 'Description',
+      label: 'Opis',
     },
     {
       id: 'category_id',
       numeric: true,
       disablePadding: false,
-      label: 'Category ID',
+      label: 'Kategoria',
     },
   ];
 
@@ -89,24 +88,29 @@ function ExercisesTable(props) {
               padding={headCell.disablePadding ? 'none' : 'normal'}
               sortDirection={orderBy === headCell.id ? order : false}
             >
-              <TableSortLabel
-                active={orderBy === headCell.id}
-                direction={orderBy === headCell.id ? order : 'asc'}
-                onClick={createSortHandler(headCell.id)}
-              >
-                {headCell.label}
-                {orderBy === headCell.id ? (
-                  <Box component="span" sx={visuallyHidden}>
-                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                  </Box>
-                ) : null}
-              </TableSortLabel>
+              {headCell.id === 'description' ? (
+                <span>{headCell.label}</span>
+              ) : (
+                <TableSortLabel
+                  active={orderBy === headCell.id}
+                  direction={orderBy === headCell.id ? order : 'asc'}
+                  onClick={createSortHandler(headCell.id)}
+                >
+                  {headCell.label}
+                  {orderBy === headCell.id ? (
+                    <Box component="span" sx={visuallyHidden}>
+                      {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                    </Box>
+                  ) : null}
+                </TableSortLabel>
+              )}
             </TableCell>
           ))}
         </TableRow>
       </TableHead>
     );
   }
+  
   
   EnhancedTableHead.propTypes = {
     numSelected: PropTypes.number.isRequired,
@@ -147,7 +151,7 @@ function ExercisesTable(props) {
             id="tableTitle"
             component="div"
           >
-            Exercises
+            Moje ćwiczenia
           </Typography>
         )}
   
