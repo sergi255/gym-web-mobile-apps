@@ -289,7 +289,7 @@ app.delete('/users/deleteUser', verifyToken, async (req, res) => {
   }
 });
 
-app.post('/exercises/addExercise', async (req, res) => {
+app.post('/exercises/addExercise', verifyToken, async (req, res) => {
   try {
     const { name, part, description } = req.body;
 
@@ -314,6 +314,44 @@ app.post('/exercises/addExercise', async (req, res) => {
   }
 });
 
+app.get('/exercises/getUserExercises', verifyToken, async (req, res) => {
+  try{
+    const userId = req.user.userId;
+    const query = `SELECT * FROM "exercise"`;
+    const result = await client.query(query);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Exercises not found' });
+    }
+
+    res.status(200).json(result.rows)
+  }
+  catch(error){
+    console.log(error,"Error getting user's exercises")
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.delete('/exercises/deleteExercises', verifyToken, async (req, res) => {
+  try {
+    const exerciseIds = req.body.exerciseIds;
+
+    if (!exerciseIds || !Array.isArray(exerciseIds)) {
+      return res.status(400).json({ message: 'Invalid exercises' });
+    }
+
+    const query = `DELETE FROM "exercise" WHERE id = ANY($1::integer[])`;
+    const params = [exerciseIds];
+    
+    await client.query(query, params);
+
+    res.status(200).json({ message: 'Exercises deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting exercises:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 app.post('/trainings/add', verifyToken, async (req, res) => {
   try{
     const {name, date, beginTime, endTime, description} = req.body;
@@ -324,11 +362,12 @@ app.post('/trainings/add', verifyToken, async (req, res) => {
       return res.status(422).json({ message: 'Invalid credentials' });
     }
 
-    const insertQuery = `INSERT INTO "training" (name, date, begin_time, end_time, description, user_id) VALUES ($1, $2, $3, $4, $5, userId)`;
+    const insertQuery = `INSERT INTO "training" (name, date, begin_time, end_time, description, user_id) VALUES ($1, $2, $3, $4, $5, $6)`;
     await client.query(insertQuery, [name, date, beginTime, endTime, description, userId]);
 
     res.status(200).json({ message: 'Training added successfully' });
   } catch(error){
     console.error('Error adding training');
     res.status(500).json({ message: 'Internal server error' });
-  }});
+  }
+});

@@ -1,0 +1,16 @@
+.stack {
+    color: #6422b8;
+  }
+  
+  .exercisesTable {
+    border-radius: 20px;
+    background-color: #6422b8;
+    color: #ffd93b;
+    width: 80%;
+    height: 40%;
+    padding: 40px;
+  }
+  
+  .box {
+    align-items: center;
+  }
