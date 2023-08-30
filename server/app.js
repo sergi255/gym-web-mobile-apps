@@ -109,7 +109,6 @@ function setupDatabase() {
       rep_amount INT NOT NULL,
       training_id INTEGER REFERENCES training(id),
       exercise_id INTEGER REFERENCES exercise(id)
-      
     );
   `;
   //plan_training_id INTEGER REFERENCES plan_training(plan_id) z tabeli performed exercises
@@ -317,7 +316,15 @@ app.post('/exercises/addExercise', verifyToken, async (req, res) => {
 app.get('/exercises/getUserExercises', verifyToken, async (req, res) => {
   try{
     const userId = req.user.userId;
-    const query = `SELECT * FROM "exercise"`;
+    const query = `
+      SELECT
+        exercise.id,
+        exercise.name AS exercise_name,
+        exercise.description,
+        category.name AS category_name
+      FROM exercise
+      JOIN category ON exercise.category_id = category.id
+    `;
     const result = await client.query(query);
 
     if (result.rows.length === 0) {
