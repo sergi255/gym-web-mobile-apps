@@ -156,7 +156,7 @@ function ExercisesTable(props) {
         )}
   
         {numSelected > 0 && (
-          <Tooltip title="Delete">
+          <Tooltip title="Usuń">
             <IconButton onClick={handleDeleteExercises}>
               <DeleteIcon />
             </IconButton>

@@ -378,3 +378,26 @@ app.post('/trainings/add', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+app.get('/trainings/getStats', verifyToken, async (req, res) => {
+  try{
+    const userId = req.user.userId;
+    const query = `
+      SELECT
+        *
+      FROM training
+      WHERE user_id = $1
+    `;
+    const result = await client.query(query, [userId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Trainings not found' });
+    }
+    
+    res.status(200).json(result.rows)
+  }
+  catch(error){
+    console.log(error,"Error getting trainings")
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
