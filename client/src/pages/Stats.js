@@ -43,7 +43,6 @@ const Stats = () => {
   };
 
   const computeStats = () => {
-    setChartData(prepareChartData)
     const computedStats = {
       countTrainings: trainings.length,
       totalTrainingTime: computeTotalTrainingTime(trainings),
@@ -146,6 +145,7 @@ const Stats = () => {
   useEffect(() => {
     if (trainings) {
       computeStats()
+      setChartData(prepareChartData)
     }
   }, [trainings]);
 
@@ -161,52 +161,50 @@ const Stats = () => {
                 </Box>
               </Box>
               <Box marginTop="4%">
-                {stats && (
-                  <Box>
-                    <TableContainer component={Paper} sx={{
-                      backgroundColor:"#6422b8",
-                    }}>
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell sx={{
-                            color:"#ffd93b",
-                            fontWeight:"bold"
-                          }}>Liczba treningów</TableCell>
-                            <TableCell sx={{
-                            color:"#ffd93b",
-                            fontWeight:"bold"
-                          }}>Całkowity czas treningów</TableCell>
-                            <TableCell sx={{
-                            color:"#ffd93b",
-                            fontWeight:"bold"
-                          }}>Średni czas treningu</TableCell>
-                            <TableCell sx={{
-                            color:"#ffd93b",
-                            fontWeight:"bold"
-                          }}>Data ostatniego treningu</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          <TableRow>
-                            <TableCell sx={{
-                            color:"#ffd93b"
-                          }}>{stats.countTrainings}</TableCell>
-                            <TableCell sx={{
-                            color:"#ffd93b"
-                          }}>{stats.totalTrainingTime}</TableCell>
-                            <TableCell sx={{
-                            color:"#ffd93b"
-                          }}>{stats.averageTrainingTime}</TableCell>
-                            <TableCell sx={{
-                            color:"#ffd93b"
-                          }}>{lastTrainingDate}</TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </Box>
-                )}
+                <Box>
+                  <TableContainer component={Paper} sx={{
+                    backgroundColor:"#6422b8",
+                  }}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{
+                          color:"#ffd93b",
+                          fontWeight:"bold"
+                        }}>Liczba treningów</TableCell>
+                          <TableCell sx={{
+                          color:"#ffd93b",
+                          fontWeight:"bold"
+                        }}>Całkowity czas treningów</TableCell>
+                          <TableCell sx={{
+                          color:"#ffd93b",
+                          fontWeight:"bold"
+                        }}>Średni czas treningu</TableCell>
+                          <TableCell sx={{
+                          color:"#ffd93b",
+                          fontWeight:"bold"
+                        }}>Data ostatniego treningu</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell sx={{
+                          color:"#ffd93b"
+                        }}>{stats.countTrainings}</TableCell>
+                          <TableCell sx={{
+                          color:"#ffd93b"
+                        }}>{stats.totalTrainingTime}</TableCell>
+                          <TableCell sx={{
+                          color:"#ffd93b"
+                        }}>{stats.averageTrainingTime}</TableCell>
+                          <TableCell sx={{
+                          color:"#ffd93b"
+                        }}>{lastTrainingDate}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
               </Box>
             </Stack>
           </Box>
@@ -222,9 +220,9 @@ const Stats = () => {
                 </Box>
               </Box>
               <Box display="flex" justifyContent="center" mt={2}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
+              <ResponsiveContainer aspect={2.2}>
+                <LineChart  data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3"/>
                   <XAxis dataKey="date" stroke="#ffd93b"/>
                   <YAxis stroke="#ffd93b"/>
                   <Tooltip
@@ -233,7 +231,7 @@ const Stats = () => {
                   />
                   <Line type="monotone" dataKey="duration" name="Długość treningu (minuty)" stroke="#ffd93b" activeDot={{ r: 8 }} />
                 </LineChart>
-              </ResponsiveContainer>
+                </ResponsiveContainer>
               </Box>
             </Stack>
           </Box>

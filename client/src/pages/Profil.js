@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react'
-import { Box, Grid, Typography, TextField, Stack } from '@mui/material';
+import { Box, Grid, Typography, TextField, Stack, Select, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import '../css/register.css';
+import { makeStyles } from '@mui/styles';
+const useStyles = makeStyles({
+  selectBackground: {
+    background: 'white',
+    borderRadius: '20px',
+  },
+});
 
 const Profil = () => {
+
+
   const navigate = useNavigate();
   const [login, setLogin] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -17,6 +26,8 @@ const Profil = () => {
   const [gender, setGender] = useState('');
   const [token, setToken] = useState('');
 
+  const classes = useStyles();
+  
   const getUserUrl = `http://localhost:3001/users/getUser`;
   const saveDataUrl = `http://localhost:3001/users/saveUser`;
   const deleteUserUrl = `http://localhost:3001/users/deleteUser`;
@@ -309,20 +320,16 @@ const Profil = () => {
             </Stack>
             <Stack direction="row" alignItems="center">
               <Typography variant="h5" mr="20px" fontWeight="600">PŁEĆ</Typography>
-              <TextField
-                  fullWidth
-                  margin="normal"
-                  value={gender || ''}
-                  onChange={(e) => setGender(e.target.value)}
-                  InputProps={{
-                  style: {
-                    background: 'white',
-                    border: 'none',
-                    height: '40px',
-                    borderRadius: '20px',
-                  },
-                  }}
-              />
+              <Select
+                fullWidth
+                margin="normal"
+                value={gender || ''}
+                onChange={(e) => setGender(e.target.value)}
+                classes={{ select: classes.selectBackground }}
+              >
+                <MenuItem value="K">K</MenuItem>
+                <MenuItem value="M">M</MenuItem>
+              </Select>
             </Stack>
             <Box display="flex" justifyContent="flex-end" spacing="2px">                        
               <button  type="submit" className="registerButton" onClick={saveData}>
