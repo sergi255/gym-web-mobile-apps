@@ -60,6 +60,7 @@ const locales = {
               title: training.name,
               start: startTime,
               end: endTime,
+              description: training.description,
             };
           } catch (error) {
             console.error("Error transforming training:", error);
@@ -119,30 +120,8 @@ const locales = {
           style={{ height: 500, margin: "50px" }}
           Views={['month', 'week', 'day', 'agenda']} // Dodajemy widoki 'week' i 'day'
           defaultView={Views.MONTH} // Domyślny widok na miesiąc
+          onSelectEvent={event => setSelectedTraining(event)}
         />
-        <h2>Trainings</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Date</th>
-              <th>Begin Time</th>
-              <th>End Time</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {trainings.map((training, index) => (
-              <tr key={index} onClick={() => handleTrainingClick(training)}>
-                <td>{training.title}</td>
-                <td>{format(training.start, "yyyy-MM-dd")}</td>
-                <td>{format(training.start, "HH:mm")}</td>
-                <td>{format(training.end, "HH:mm")}</td>
-                <td>{selectedTraining === training ? training.description : ""}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
         {selectedTraining && (
           <div>
             <h2>Selected Training</h2>
