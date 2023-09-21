@@ -18,7 +18,6 @@ const BrowseExercises = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const getExercisesUrl = 'http://localhost:3001/exercises/getUserExercises';
-  const deleteExercisesUrl = 'http://localhost:3001/exercises/deleteExercises';
 
   const getCookie = (name) => {
     const value = `; ${document.cookie}`;
@@ -128,11 +127,16 @@ const BrowseExercises = () => {
     });
     return stabilizedThis.map((el) => el[0]);
   }
-  
+
   function getComparator(order, orderBy) {
     return (a, b) => {
       if (orderBy === 'name') {
-        return order === 'desc' ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name);
+        // Sprawdź, czy 'name' istnieje w obiektach 'a' i 'b'
+        if (a.name && b.name) {
+          return order === 'desc' ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name);
+        }
+        // Jeśli 'name' jest niezdefiniowane w jednym z obiektów, porównaj je inaczej lub zwróć 0
+        return 0;
       }
       if (orderBy === 'category_id') {
         return order === 'desc' ? b.category_id - a.category_id : a.category_id - b.category_id;
@@ -141,30 +145,33 @@ const BrowseExercises = () => {
     };
   }
   
-  return (
-    <Box width="100%" marginTop="2%">
-      <Grid container className="stack">
-        <Box className="exercisesTable" overflow="auto">
-          <ExercisesTable
-            exercises={exercises}
-            order={order}
-            orderBy={orderBy}
-            selected={selected}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            dense={dense}
-            handleChangePage={handleChangePage}
-            handleChangeRowsPerPage={handleChangeRowsPerPage}
-            isSelected={isSelected}
-            visibleRows={visibleRows}
-            handleSelectAllClick={handleSelectAllClick}
-            handleClick={handleClick}
-            handleRequestSort={handleRequestSort}
-          />
-        </Box>
-      </Grid>
-    </Box>
-  );
+// ... reszta kodu ...
+
+return (
+  <Box width="100%" marginTop="2%">
+    <Grid container className="stack">
+      <Box className="exercisesTable" overflow="auto">
+        <ExercisesTable
+          exercises={exercises} 
+          order={order}
+          orderBy={orderBy}
+          selected={selected}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          dense={dense}
+          handleChangePage={handleChangePage}
+          handleChangeRowsPerPage={handleChangeRowsPerPage}
+          isSelected={isSelected}
+          visibleRows={visibleRows}
+          handleSelectAllClick={handleSelectAllClick}
+          handleClick={handleClick}
+          handleRequestSort={handleRequestSort}
+        />
+      </Box>
+    </Grid>
+  </Box>
+);
+
 };
 
 export default BrowseExercises;

@@ -41,7 +41,7 @@ function ExercisesTable(props) {
 
   const headCells = [
     {
-      id: 'name',
+      id: 'exercise_name',
       numeric: false,
       disablePadding: true,
       label: 'Nazwa ćwiczenia',
@@ -53,7 +53,7 @@ function ExercisesTable(props) {
       label: 'Opis',
     },
     {
-      id: 'category_id',
+      id: 'category_name',
       numeric: true,
       disablePadding: false,
       label: 'Kategoria',
@@ -156,7 +156,7 @@ function ExercisesTable(props) {
         )}
   
         {numSelected > 0 && (
-          <Tooltip title="Delete">
+          <Tooltip title="Usuń">
             <IconButton onClick={handleDeleteExercises}>
               <DeleteIcon />
             </IconButton>
@@ -215,10 +215,10 @@ function ExercisesTable(props) {
                         />
                       </TableCell>
                       <TableCell component="th" id={labelId} scope="row" padding="none">
-                        {row.name}
+                        {row.exercise_name}
                       </TableCell>
                       <TableCell>{row.description}</TableCell>
-                      <TableCell align="right">{row.category_id}</TableCell>
+                      <TableCell align="right">{row.category_name}</TableCell>
                     </TableRow>
                   );
                 })}

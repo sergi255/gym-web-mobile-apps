@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Box, Grid, Typography, TextField, Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import '../css/login.css';
+import { useAuth } from '../components/AuthProvider';
 import axios from 'axios';
 
 const Login = () => {
     const navigate = useNavigate();
+    const { setAuth } = useAuth();
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const apiUrl = `http://localhost:3001/users/login`;
@@ -18,6 +20,7 @@ const Login = () => {
                 const token = response.data.token;
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
                 document.cookie = `session_data=${token}; path=/; SameSite=None; Secure`;
+                setAuth(true);
                 navigate('/');
             } 
             else {

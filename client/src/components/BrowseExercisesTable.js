@@ -11,13 +11,16 @@ import {
   TableSortLabel,
   Toolbar,
   Typography,
-  
+  Checkbox,
+  IconButton,
+  Tooltip,
   alpha,
 } from '@mui/material';
 import PropTypes from 'prop-types';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { visuallyHidden } from '@mui/utils';
 
-function BrowseExercisesTable(props) {
+function ExercisesTable(props) {
   const {
     exercises,
     order,
@@ -26,17 +29,19 @@ function BrowseExercisesTable(props) {
     page,
     rowsPerPage,
     dense,
+    handleDeleteExercises,
     handleChangePage,
     handleChangeRowsPerPage,
     isSelected,
     visibleRows,
     handleSelectAllClick,
+    handleClick,
     handleRequestSort,
   } = props;
 
   const headCells = [
     {
-      id: 'name',
+      id: 'exercise_name',
       numeric: false,
       disablePadding: true,
       label: 'Nazwa ćwiczenia',
@@ -48,7 +53,7 @@ function BrowseExercisesTable(props) {
       label: 'Opis',
     },
     {
-      id: 'category_id',
+      id: 'category_name',
       numeric: true,
       disablePadding: false,
       label: 'Kategoria',
@@ -137,13 +142,25 @@ function BrowseExercisesTable(props) {
             id="tableTitle"
             component="div"
           >
-            Moje ćwiczenia
+            Wszystkie ćwiczenia
           </Typography>
         )}
   
+        {numSelected > 0 && (
+          <Tooltip title="Usuń">
+            <IconButton onClick={handleDeleteExercises}>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        )}
       </Toolbar>
     );
   }  
+  
+  EnhancedTableToolbar.propTypes = {
+    numSelected: PropTypes.number.isRequired,
+  };
+  
   return (
     <Box>
       <EnhancedTableToolbar numSelected={selected.length} />
@@ -170,14 +187,22 @@ function BrowseExercisesTable(props) {
 
                   return (
                     <TableRow
+                      hover
+                      onClick={(event) => handleClick(event, row.id)}
+                      role="checkbox"
+                      aria-checked={isItemSelected}
+                      tabIndex={-1}
+                      key={row.id}
+                      selected={isItemSelected}
+                      sx={{ cursor: 'pointer' }}
                     >
                       <TableCell padding="checkbox">
                       </TableCell>
                       <TableCell component="th" id={labelId} scope="row" padding="none">
-                        {row.name}
+                        {row.exercise_name}
                       </TableCell>
                       <TableCell>{row.description}</TableCell>
-                      <TableCell align="right">{row.category_id}</TableCell>
+                      <TableCell align="right">{row.category_name}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -197,4 +222,4 @@ function BrowseExercisesTable(props) {
   );
 }
 
-export default BrowseExercisesTable;
+export default ExercisesTable;

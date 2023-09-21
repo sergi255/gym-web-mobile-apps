@@ -155,11 +155,11 @@ const MyExercises = () => {
   
   function getComparator(order, orderBy) {
     return (a, b) => {
-      if (orderBy === 'name') {
-        return order === 'desc' ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name);
+      if (orderBy === 'exercise_name') {
+        return order === 'desc' ? b.exercise_name.localeCompare(a.exercise_name) : a.exercise_name.localeCompare(b.exercise_name);
       }
-      if (orderBy === 'category_id') {
-        return order === 'desc' ? b.category_id - a.category_id : a.category_id - b.category_id;
+      if (orderBy === 'category_name') {
+        return order === 'desc' ? b.category_name.localeCompare(a.category_name) : a.category_name.localeCompare(b.category_name);
       }
       return 0;
     };

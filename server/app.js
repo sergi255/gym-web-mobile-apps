@@ -108,8 +108,7 @@ function setupDatabase() {
       set_amount INT NOT NULL,
       rep_amount INT NOT NULL,
       training_id INTEGER REFERENCES training(id),
-      exercise_id INTEGER REFERENCES exercise(id)
-      
+      exercise_id INTEGER REFERENCES exercise(id) 
     );
   `;
   //plan_training_id INTEGER REFERENCES plan_training(plan_id) z tabeli performed exercises
@@ -314,6 +313,52 @@ app.post('/exercises/addExercise', async (req, res) => {
   }
 });
 
+app.get('/exercises/getUserExercises', verifyToken, async (req, res) => {
+  try{
+    const userId = req.user.userId;
+    const query = `
+      SELECT
+        exercise.id,
+        exercise.name AS exercise_name,
+        exercise.description,
+        category.name AS category_name
+      FROM exercise
+      JOIN category ON exercise.category_id = category.id
+    `;
+    const result = await client.query(query);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Exercises not found' });
+    }
+
+    res.status(200).json(result.rows)
+  }
+  catch(error){
+    console.log(error,"Error getting user's exercises")
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.delete('/exercises/deleteExercises', verifyToken, async (req, res) => {
+  try {
+    const exerciseIds = req.body.exerciseIds;
+
+    if (!exerciseIds || !Array.isArray(exerciseIds)) {
+      return res.status(400).json({ message: 'Invalid exercises' });
+    }
+
+    const query = `DELETE FROM "exercise" WHERE id = ANY($1::integer[])`;
+    const params = [exerciseIds];
+    
+    await client.query(query, params);
+
+    res.status(200).json({ message: 'Exercises deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting exercises:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 app.post('/trainings/add', verifyToken, async (req, res) => {
   try{
     const {name, date, beginTime, endTime, description} = req.body;
@@ -331,9 +376,33 @@ app.post('/trainings/add', verifyToken, async (req, res) => {
   } catch(error){
     console.error('Error adding training');
     res.status(500).json({ message: 'Internal server error' });
-  }});
+  }
+});
 
-  app.get('/categories', async (req, res) => {
+app.get('/trainings/getStats', verifyToken, async (req, res) => {
+  try{
+    const userId = req.user.userId;
+    const query = `
+      SELECT
+        *
+      FROM training
+      WHERE user_id = $1
+    `;
+    const result = await client.query(query, [userId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Trainings not found' });
+    }
+    
+    res.status(200).json(result.rows)
+  }
+  catch(error){
+    console.log(error,"Error getting trainings")
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.get('/categories', async (req, res) => {
     try {
       const query = `SELECT * FROM "category"`;
       const result = await client.query(query);
@@ -346,44 +415,6 @@ app.post('/trainings/add', verifyToken, async (req, res) => {
       res.status(200).json(categoriesData);
     } catch (error) {
       console.error('Error fetching categories:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-
-  app.get('/exercises/getUserExercises', verifyToken, async (req, res) => {
-    try{
-      const userId = req.user.userId;
-      const query = `SELECT * FROM "exercise"`;
-      const result = await client.query(query);
-  
-      if (result.rows.length === 0) {
-        return res.status(404).json({ message: 'Exercises not found' });
-      }
-  
-      res.status(200).json(result.rows)
-    }
-    catch(error){
-      console.log(error,"Error getting user's exercises")
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-  
-  app.delete('/exercises/deleteExercises', verifyToken, async (req, res) => {
-    try {
-      const exerciseIds = req.body.exerciseIds;
-  
-      if (!exerciseIds || !Array.isArray(exerciseIds)) {
-        return res.status(400).json({ message: 'Invalid exercises' });
-      }
-  
-      const query = `DELETE FROM "exercise" WHERE id = ANY($1::integer[])`;
-      const params = [exerciseIds];
-      
-      await client.query(query, params);
-  
-      res.status(200).json({ message: 'Exercises deleted successfully' });
-    } catch (error) {
-      console.error('Error deleting exercises:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   });
