@@ -33,14 +33,14 @@ const secretKey = crypto.randomBytes(32).toString('hex');
 
 client.connect(err => {
   if (err) {
-      console.error('Error connecting to database:', err);
-  } else { 
-      
-      app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-      });
-      console.log('Connected to database');
-      setupDatabase();
+    console.error('Error connecting to database:', err);
+  } else {
+
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+    console.log('Connected to database');
+    setupDatabase();
   }
 });
 
@@ -113,11 +113,11 @@ function setupDatabase() {
   `;
   //plan_training_id INTEGER REFERENCES plan_training(plan_id) z tabeli performed exercises
   client
-      .query(setupDatabaseQuery)
-      .then(() => {
-          console.log('Database setup successfull');
-      })
-      .catch(err => console.log(err));
+    .query(setupDatabaseQuery)
+    .then(() => {
+      console.log('Database setup successfull');
+    })
+    .catch(err => console.log(err));
 
   const checkCategoryQuery = `SELECT COUNT(*) FROM category`;
   client.query(checkCategoryQuery)
@@ -222,7 +222,7 @@ app.get('/users/getUser', verifyToken, async (req, res) => {
     const userId = req.user.userId;
     const query = `SELECT * FROM "users" WHERE id = $1`;
     const result = await client.query(query, [userId]);
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -253,7 +253,7 @@ app.put('/users/saveUser', verifyToken, async (req, res) => {
     if (!/^[A-Za-z]+$/.test(first_name) || !/^[A-Za-z]+$/.test(last_name)) {
       return res.status(400).json({ message: 'First name and last name must contain only letters' });
     }
-    
+
     if (!/^[0-9]+$/.test(age) || !/^[0-9]+(\.[0-9]+)?$/.test(height) || !/^[0-9]+(\.[0-9]+)?$/.test(weight)) {
       return res.status(400).json({ message: 'Age, height, and weight must be numbers' });
     }
@@ -302,7 +302,7 @@ app.post('/exercises/addExercise', async (req, res) => {
     if (exerciseExistResult.rows.length > 0) {
       return res.status(409).json({ message: 'Exercise already exists' });
     }
-    
+
     const insertQuery = `INSERT INTO "exercise" (name, description, category_id) VALUES ($1, $2, $3)`;
     await client.query(insertQuery, [name, description, part]);
 
@@ -314,7 +314,7 @@ app.post('/exercises/addExercise', async (req, res) => {
 });
 
 app.get('/exercises/getUserExercises', verifyToken, async (req, res) => {
-  try{
+  try {
     const userId = req.user.userId;
     const query = `
       SELECT
@@ -333,8 +333,8 @@ app.get('/exercises/getUserExercises', verifyToken, async (req, res) => {
 
     res.status(200).json(result.rows)
   }
-  catch(error){
-    console.log(error,"Error getting user's exercises")
+  catch (error) {
+    console.log(error, "Error getting user's exercises")
     res.status(500).json({ message: 'Internal server error' });
   }
 });
@@ -349,7 +349,7 @@ app.delete('/exercises/deleteExercises', verifyToken, async (req, res) => {
 
     const query = `DELETE FROM "exercise" WHERE id = ANY($1::integer[])`;
     const params = [exerciseIds];
-    
+
     await client.query(query, params);
 
     res.status(200).json({ message: 'Exercises deleted successfully' });
@@ -360,8 +360,8 @@ app.delete('/exercises/deleteExercises', verifyToken, async (req, res) => {
 });
 
 app.post('/trainings/add', verifyToken, async (req, res) => {
-  try{
-    const {name, date, beginTime, endTime, description} = req.body;
+  try {
+    const { name, date, beginTime, endTime, description } = req.body;
 
     const userId = req.user.userId;
 
@@ -373,14 +373,14 @@ app.post('/trainings/add', verifyToken, async (req, res) => {
     await client.query(insertQuery, [name, date, beginTime, endTime, description, userId]);
 
     res.status(200).json({ message: 'Training added successfully' });
-  } catch(error){
+  } catch (error) {
     console.error('Error adding training');
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
 app.get('/trainings/getStats', verifyToken, async (req, res) => {
-  try{
+  try {
     const userId = req.user.userId;
     const query = `
       SELECT
@@ -393,49 +393,49 @@ app.get('/trainings/getStats', verifyToken, async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Trainings not found' });
     }
-    
+
     res.status(200).json(result.rows)
   }
-  catch(error){
-    console.log(error,"Error getting trainings")
+  catch (error) {
+    console.log(error, "Error getting trainings")
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
 app.get('/categories', async (req, res) => {
-    try {
-      const query = `SELECT * FROM "category"`;
-      const result = await client.query(query);
-      const categories = result.rows;
-      const categoriesData = categories.map(exercise => {
-        return {
-          name: categories.name,
-        }
-      });
-      res.status(200).json(categoriesData);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
+  try {
+    const query = `SELECT * FROM "category"`;
+    const result = await client.query(query);
+    const categories = result.rows;
+    const categoriesData = categories.map(exercise => {
+      return {
+        name: categories.name,
+      }
+    });
+    res.status(200).json(categoriesData);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
-  app.get('/exercises/browse', verifyToken, async (req, res) => {
-    try{
-      const query = `SELECT * FROM "exercise"`;
-      
-      const result = await client.query(query);
-      const exercises = result.rows;
-      const exercisesData = exercises.map(exercise => {
-        return {
-          name: exercise.name,
-          description: exercise.description,
-          category: exercise.category_id
-        }
-      });
-      res.status(200).json(exercisesData);
-    }
-    catch(error){
-      console.error('Error browsing exercises');
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
+app.get('/exercises/browse', verifyToken, async (req, res) => {
+  try {
+    const query = `SELECT * FROM "exercise"`;
+
+    const result = await client.query(query);
+    const exercises = result.rows;
+    const exercisesData = exercises.map(exercise => {
+      return {
+        name: exercise.name,
+        description: exercise.description,
+        category: exercise.category_id
+      }
+    });
+    res.status(200).json(exercisesData);
+  }
+  catch (error) {
+    console.error('Error browsing exercises');
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});

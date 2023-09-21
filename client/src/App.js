@@ -11,6 +11,7 @@ import Stats from './pages/Stats'
 import Exercise from './pages/Exercise'
 import BrowseExercise from './pages/BrowseExercise'
 import MyExercises from './pages/MyExercises'
+import Kalendarz from './pages/Kalendarz'
 
 // Components
 import Navbar from './components/Navbar'
@@ -37,6 +38,7 @@ function App() {
           <Route path="/login" element={<Login/>}/>
           <Route path="/register" element={<Register/>}/>
           <Route path="/trainings/add" element={<Training/>}/>
+          <Route path="/trainings/browse" element={<Kalendarz/>}/>
           <Route path="/exercises/add" element={<Exercise/>}/>
           <Route path="/exercises/browse" element={<BrowseExercise/>}/>
           <Route path="/exercises/my" element={<MyExercises/>}/>
