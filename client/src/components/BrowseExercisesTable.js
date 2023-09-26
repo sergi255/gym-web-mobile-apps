@@ -11,7 +11,6 @@ import {
   TableSortLabel,
   Toolbar,
   Typography,
-  Checkbox,
   IconButton,
   Tooltip,
   alpha,
@@ -25,17 +24,14 @@ function ExercisesTable(props) {
     exercises,
     order,
     orderBy,
-    selected,
     page,
     rowsPerPage,
     dense,
     handleDeleteExercises,
     handleChangePage,
     handleChangeRowsPerPage,
-    isSelected,
     visibleRows,
     handleSelectAllClick,
-    handleClick,
     handleRequestSort,
   } = props;
 
@@ -61,7 +57,7 @@ function ExercisesTable(props) {
   ];
 
   function EnhancedTableHead(props) {
-    const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+    const {order, orderBy, onRequestSort } = props;
   
     const createSortHandler = (property) => (event) => {
       onRequestSort(event, property);
@@ -163,7 +159,7 @@ function ExercisesTable(props) {
   
   return (
     <Box>
-      <EnhancedTableToolbar numSelected={selected.length} />
+      <EnhancedTableToolbar />
           <TableContainer>
             <Table
               sx={{ minWidth: 750 }}
@@ -172,7 +168,6 @@ function ExercisesTable(props) {
             >
 
               <EnhancedTableHead
-                numSelected={selected.length}
                 order={order}
                 orderBy={orderBy}
                 onSelectAllClick={handleSelectAllClick}
@@ -182,18 +177,14 @@ function ExercisesTable(props) {
 
               <TableBody>
                 {visibleRows.map((row, index) => {
-                  const isItemSelected = isSelected(row.id);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.id)}
                       role="checkbox"
-                      aria-checked={isItemSelected}
                       tabIndex={-1}
                       key={row.id}
-                      selected={isItemSelected}
                       sx={{ cursor: 'pointer' }}
                     >
                       <TableCell padding="checkbox">

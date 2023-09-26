@@ -12,7 +12,6 @@ const BrowseExercises = () => {
   const [exercises, setExercises] = useState([]);
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('name');
-  const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -67,8 +66,6 @@ const BrowseExercises = () => {
     setPage(0);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
-
   const visibleRows = React.useMemo(
     () =>
       exercises.slice(
@@ -78,36 +75,9 @@ const BrowseExercises = () => {
     [page, rowsPerPage, exercises],
   );
   
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelected = exercises.map((exercise) => exercise.id);
-      setSelected(newSelected);
-    } else {
-      setSelected([]);
-    }
-  };
-  
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
-      );
-    }
-    setSelected(newSelected);
-  };
 
   useEffect(()=>{
-  }, [selected]
+  }, []
   )
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -155,16 +125,12 @@ return (
           exercises={exercises} 
           order={order}
           orderBy={orderBy}
-          selected={selected}
           page={page}
           rowsPerPage={rowsPerPage}
           dense={dense}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
-          isSelected={isSelected}
           visibleRows={visibleRows}
-          handleSelectAllClick={handleSelectAllClick}
-          handleClick={handleClick}
           handleRequestSort={handleRequestSort}
         />
       </Box>
