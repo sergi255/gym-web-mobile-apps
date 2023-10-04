@@ -42,7 +42,6 @@ export const Layout = () => {
           <Stack.Screen name = "Home" component = {Home}
           options={{
             headerRight: () => <Button onPress ={onLogout} title="Sign Out"/>,
-            headerLeft: () => <Button onPress = {console.log("dyszy")} title="huj"/>,
           }}></Stack.Screen>
         ) : (
           <Stack.Screen name = "Login" component = {Login}></Stack.Screen>
