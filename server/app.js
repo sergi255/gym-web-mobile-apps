@@ -11,7 +11,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: '*',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204,
@@ -158,7 +158,6 @@ function verifyToken(req, res, next) {
 app.post('/users/login', async (req, res) => {
   try {
     const { login, password } = req.body;
-
     if (login.length === 0 || password.length === 0) {
       return res.status(422).json({ message: 'Invalid credentials' });
     }
@@ -174,10 +173,10 @@ app.post('/users/login', async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      return res.status(401).json({ message: 'Invalid password' });
+      return res.status(404).json({ message: 'Invalid password' });
     }
 
-    const token = jwt.sign({ userId: user.id, userLogin: user.login }, secretKey, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id, userLogin: user.login, secretKey: secretKey }, secretKey, { expiresIn: '1h' });
 
     res.status(200).json({ token });
   } catch (error) {
@@ -389,10 +388,6 @@ app.get('/trainings/getStats', verifyToken, async (req, res) => {
       WHERE user_id = $1
     `;
     const result = await client.query(query, [userId]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Trainings not found' });
-    }
     
     res.status(200).json(result.rows)
   }
