@@ -49,7 +49,7 @@ const Training = () => {
                 beginTime: beginTime,
                 endTime: endTime,
                 description: description,
-                selectedExercises: selectedExercises,
+                selectedExercises: selectedExercises.map((exercise) => exercise.id), // Przesyłamy tylko ID ćwiczeń
             }, {
                 headers: {
                     'Content-Type': 'application/json',

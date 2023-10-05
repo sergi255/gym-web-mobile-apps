@@ -361,23 +361,32 @@ app.delete('/exercises/deleteExercises', verifyToken, async (req, res) => {
 
 app.post('/trainings/add', verifyToken, async (req, res) => {
   try {
-    const { name, date, beginTime, endTime, description } = req.body;
+    const { name, date, beginTime, endTime, description, selectedExercises } = req.body; // Dodaj selectedExercises do destrukturyzacji
 
     const userId = req.user.userId;
 
-    if (name.length === 0 || date.length === 0 || beginTime.length === 0 || endTime.length === 0 || description.length === 0) {
+    if (name.length === 0 || date.length === 0 || beginTime.length === 0 || endTime.length === 0 || description.length === 0 || selectedExercises.length === 0) {
       return res.status(422).json({ message: 'Invalid credentials' });
     }
 
-    const insertQuery = `INSERT INTO "training" (name, date, begin_time, end_time, description, user_id) VALUES ($1, $2, $3, $4, $5, $6)`;
-    await client.query(insertQuery, [name, date, beginTime, endTime, description, userId]);
+    const insertQuery = `INSERT INTO "training" (name, date, begin_time, end_time, description, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`; // Dodaj "RETURNING id" dla pobrania ID nowo dodanego treningu
+    const result = await client.query(insertQuery, [name, date, beginTime, endTime, description, userId]);
+
+    const trainingId = result.rows[0].id; // Pobierz ID nowo dodanego treningu
+
+    for (const exerciseId of selectedExercises) {
+      // Wstaw informację do tabeli "training_exercise"
+      const insertTrainingExerciseQuery = `INSERT INTO training_exercise (training_id, exercise_id) VALUES ($1, $2)`;
+      await client.query(insertTrainingExerciseQuery, [trainingId, exerciseId]);
+    }
 
     res.status(200).json({ message: 'Training added successfully' });
   } catch (error) {
-    console.error('Error adding training');
+    console.error('Error adding training:', error); // Wyświetl szczegóły błędu
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 app.get('/trainings/getStats', verifyToken, async (req, res) => {
   try {
@@ -401,6 +410,91 @@ app.get('/trainings/getStats', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+app.get('/trainings/getTrainings', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // Zapytanie do tabeli training
+    const trainingQuery = `
+      SELECT
+        *
+      FROM training
+      WHERE user_id = $1
+    `;
+
+    const trainingExerciseQuery = `
+      SELECT
+        training_id,
+        exercise_id
+      FROM training_exercise
+    `;
+
+    const exerciseQuery = `
+      SELECT
+        id AS exercise_id,
+        name AS exercise_name,
+        description AS exercise_description
+      FROM exercise
+    `;
+
+    const trainingResult = await client.query(trainingQuery, [userId]);
+    const trainingExerciseResult = await client.query(trainingExerciseQuery);
+    const exerciseResult = await client.query(exerciseQuery);
+
+    if (trainingResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Trainings not found' });
+    }
+
+    // Mapa do przechowywania treningów
+    const trainingsMap = new Map();
+
+    // Mapa do przechowywania informacji o ćwiczeniach
+    const exercisesMap = new Map();
+
+    trainingResult.rows.forEach((training) => {
+      trainingsMap.set(training.id, {
+        ...training,
+        exercises: [],
+      });
+    });
+
+    trainingExerciseResult.rows.forEach((trainingExercise) => {
+      const trainingId = trainingExercise.training_id;
+      const exerciseId = trainingExercise.exercise_id;
+
+      if (trainingsMap.has(trainingId)) {
+        trainingsMap.get(trainingId).exercises.push(exerciseId);
+      }
+    });
+
+    exerciseResult.rows.forEach((exercise) => {
+      exercisesMap.set(exercise.exercise_id, {
+        exercise_name: exercise.exercise_name,
+        exercise_description: exercise.exercise_description,
+      });
+    });
+
+    // Konwertuj mapę na tablicę
+    const trainingsArray = [...trainingsMap.values()];
+
+    // Aktualizuj dane ćwiczeń w treningach
+    trainingsArray.forEach((training) => {
+      training.exercises = training.exercises.map((exerciseId) => {
+        return {
+          exercise_id: exerciseId,
+          ...exercisesMap.get(exerciseId),
+        };
+      });
+    });
+
+    res.status(200).json(trainingsArray);
+  } catch (error) {
+    console.log(error, "Error getting trainings")
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 
 app.get('/categories', async (req, res) => {
   try {
