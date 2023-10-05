@@ -3,14 +3,14 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store'
 
 interface AuthProps {
-    authState?: { token: string | null; authenticated: boolean | null };
+    authState: { token: string | null; authenticated: boolean | false };
     onLogin?: (login: string, password: string) => Promise<any>;
-    onRegister?: (email: string, password: string) => Promise<any>;
+    onRegister?: (email: string, login: string, password: string) => Promise<any>;
     onLogout?: () => Promise<any>;
 }
 
 const TOKEN_KEY = 'my-jwt';
-export const API_URL = 'https://e8ad-178-235-190-219.ngrok-free.app';
+export const API_URL = 'https://a350-178-235-190-219.ngrok-free.app';
 
 const AuthContext = createContext<AuthProps>({});
 
@@ -21,10 +21,10 @@ export const useAuth = () => {
 export const AuthProvider = ({children}: any) => {
     const [authState, setAuthState] = useState<{
         token: string | null;
-        authenticated: boolean | null;
+        authenticated: boolean | false;
     }>({
         token: null,
-        authenticated: null,
+        authenticated: false,
     });
 
     useEffect(() => {
@@ -33,19 +33,25 @@ export const AuthProvider = ({children}: any) => {
 
             if(token){
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                setAuthState({
+                    token: token,
+                    authenticated: true
+                })
+            } else{
+                setAuthState({
+                    token: null,
+                    authenticated: false
+                })
             }
 
-            setAuthState({
-                token: token,
-                authenticated: true
-            })
+
         }
         loadToken()
     }, [])
 
-    const register = async (email: string, password: string) => {
+    const register = async (email: string, login: string, password: string) => {
         try{
-            return await axios.post(`${API_URL}/users/register`, { email, password })
+            return await axios.post(`${API_URL}/users/register`, { email, login, password })
         } catch(error){
             return { error: true, msg: (error as any).response.data.msg };
         }

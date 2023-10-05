@@ -1,19 +1,20 @@
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StyleSheet, Button } from 'react-native';
+import { AuthProvider } from './app/context/AuthContext';
 
-import { AuthProvider, useAuth } from './app/context/AuthContext';
-import Home from './screens/Home';
-import Login from './screens/Login';
-
-const Stack = createNativeStackNavigator();
-
-//to run type npx expo start --tunnel and scan qr code in the app
+import { Layout } from './Layout';
+// TO RUN
+// create account on ngrok: https://ngrok.com/ and get your Authtoken from Your Authtoken page
+// open ngrok app
+// type ngrok config add-authtoken <your authtoken> (only once)
+// run the server
+// type ngrok http 3001
+// copy the address from Forwarding header (for example: https://a350-178-235-190-219.ngrok-free.app)
+// paste address to AuthContext API_URL variable (required every time you close ngrok)
+// type npx expo start --tunnel and scan qr code in the Expo Go app
 
 // Color palette
-//#6422b8 - fioletowy
-//#ffd93b - rzułty
-//#ffffff - biały
+// #6422b8 - fioletowy
+// #ffd93b - rzułty
+// #ffffff - biały
 
 export default function App() {
   return (
@@ -21,32 +22,4 @@ export default function App() {
       <Layout></Layout>
     </AuthProvider>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
-
-export const Layout = () => {
-  const { authState, onLogout } = useAuth();
-
-  return(
-    <NavigationContainer>
-      <Stack.Navigator>
-        {authState?.authenticated ? (
-          <Stack.Screen name = "Home" component = {Home}
-          options={{
-            headerRight: () => <Button onPress ={onLogout} title="Sign Out"/>,
-          }}></Stack.Screen>
-        ) : (
-          <Stack.Screen name = "Login" component = {Login}></Stack.Screen>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
-  )
 }
