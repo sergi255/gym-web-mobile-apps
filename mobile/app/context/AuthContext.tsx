@@ -10,7 +10,7 @@ interface AuthProps {
 }
 
 const TOKEN_KEY = 'my-jwt';
-export const API_URL = 'https://a350-178-235-190-219.ngrok-free.app';
+export const API_URL = 'https://fox-humble-inherently.ngrok-free.app';
 
 const AuthContext = createContext<AuthProps>({});
 

@@ -90,28 +90,8 @@ function setupDatabase() {
       exercise_id INTEGER REFERENCES exercise(id),
       PRIMARY KEY (training_id, exercise_id)
     );
-
-    CREATE TABLE IF NOT EXISTS plan (
-      id SERIAL PRIMARY KEY,
-      date DATE NOT NULL,
-      user_id INTEGER REFERENCES users(id)
-    );
-
-    CREATE TABLE IF NOT EXISTS plan_training (
-      training_id INTEGER REFERENCES training(id),
-      plan_id INTEGER REFERENCES plan(id),
-      PRIMARY KEY (training_id, plan_id)
-    );  
-
-    CREATE TABLE IF NOT EXISTS performed_exercises (
-      id SERIAL PRIMARY KEY,
-      set_amount INT NOT NULL,
-      rep_amount INT NOT NULL,
-      training_id INTEGER REFERENCES training(id),
-      exercise_id INTEGER REFERENCES exercise(id)
-    );
   `;
-  //plan_training_id INTEGER REFERENCES plan_training(plan_id) z tabeli performed exercises
+
   client
       .query(setupDatabaseQuery)
       .then(() => {
