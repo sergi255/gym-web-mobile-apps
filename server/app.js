@@ -153,10 +153,10 @@ app.post('/users/login', async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      return res.status(404).json({ message: 'Invalid password' });
+      return res.status(401).json({ message: 'Invalid password' });
     }
 
-    const token = jwt.sign({ userId: user.id, userLogin: user.login, secretKey: secretKey }, secretKey, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id, userLogin: user.login }, secretKey, { expiresIn: '1h' });
 
     res.status(200).json({ token });
   } catch (error) {
@@ -201,7 +201,7 @@ app.get('/users/getUser', verifyToken, async (req, res) => {
     const userId = req.user.userId;
     const query = `SELECT * FROM "users" WHERE id = $1`;
     const result = await client.query(query, [userId]);
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -232,7 +232,7 @@ app.put('/users/saveUser', verifyToken, async (req, res) => {
     if (!/^[A-Za-z]+$/.test(first_name) || !/^[A-Za-z]+$/.test(last_name)) {
       return res.status(400).json({ message: 'First name and last name must contain only letters' });
     }
-    
+
     if (!/^[0-9]+$/.test(age) || !/^[0-9]+(\.[0-9]+)?$/.test(height) || !/^[0-9]+(\.[0-9]+)?$/.test(weight)) {
       return res.status(400).json({ message: 'Age, height, and weight must be numbers' });
     }
@@ -281,7 +281,7 @@ app.post('/exercises/addExercise', verifyToken, async (req, res) => {
     if (exerciseExistResult.rows.length > 0) {
       return res.status(409).json({ message: 'Exercise already exists' });
     }
-    
+
     const insertQuery = `INSERT INTO "exercise" (name, description, category_id) VALUES ($1, $2, $3)`;
     await client.query(insertQuery, [name, description, part]);
 
@@ -328,7 +328,6 @@ app.delete('/exercises/deleteExercises', verifyToken, async (req, res) => {
 
     const query = `DELETE FROM "exercise" WHERE id = ANY($1::integer[])`;
     const params = [exerciseIds];
-    
     await client.query(query, params);
 
     res.status(200).json({ message: 'Exercises deleted successfully' });
@@ -339,21 +338,28 @@ app.delete('/exercises/deleteExercises', verifyToken, async (req, res) => {
 });
 
 app.post('/trainings/add', verifyToken, async (req, res) => {
-  try{
-    const {name, date, beginTime, endTime, description} = req.body;
+  try {
+    const { name, date, beginTime, endTime, description, selectedExercises } = req.body;
 
     const userId = req.user.userId;
 
-    if (name.length === 0 || date.length === 0 || beginTime.length === 0 || endTime.length === 0 || description.length === 0) {
+    if (name.length === 0 || date.length === 0 || beginTime.length === 0 || endTime.length === 0 || description.length === 0 || selectedExercises.length === 0) {
       return res.status(422).json({ message: 'Invalid credentials' });
     }
 
-    const insertQuery = `INSERT INTO "training" (name, date, begin_time, end_time, description, user_id) VALUES ($1, $2, $3, $4, $5, $6)`;
-    await client.query(insertQuery, [name, date, beginTime, endTime, description, userId]);
+    const insertQuery = `INSERT INTO "training" (name, date, begin_time, end_time, description, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`;
+    const result = await client.query(insertQuery, [name, date, beginTime, endTime, description, userId]);
+
+    const trainingId = result.rows[0].id;
+
+    for (const exerciseId of selectedExercises) {
+      const insertTrainingExerciseQuery = `INSERT INTO training_exercise (training_id, exercise_id) VALUES ($1, $2)`;
+      await client.query(insertTrainingExerciseQuery, [trainingId, exerciseId]);
+    }
 
     res.status(200).json({ message: 'Training added successfully' });
-  } catch(error){
-    console.error('Error adding training');
+  } catch (error) {
+    console.error('Error adding training:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
@@ -368,11 +374,132 @@ app.get('/trainings/getStats', verifyToken, async (req, res) => {
       WHERE user_id = $1
     `;
     const result = await client.query(query, [userId]);
-    
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Trainings not found' });
+    }
+
     res.status(200).json(result.rows)
   }
-  catch(error){
-    console.log(error,"Error getting trainings")
+  catch (error) {
+    console.log(error, "Error getting trainings")
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.get('/trainings/getTrainings', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const trainingQuery = `
+      SELECT
+        *
+      FROM training
+      WHERE user_id = $1
+    `;
+
+    const trainingExerciseQuery = `
+      SELECT
+        training_id,
+        exercise_id
+      FROM training_exercise
+    `;
+
+    const exerciseQuery = `
+      SELECT
+        id AS exercise_id,
+        name AS exercise_name,
+        description AS exercise_description
+      FROM exercise
+    `;
+
+    const trainingResult = await client.query(trainingQuery, [userId]);
+    const trainingExerciseResult = await client.query(trainingExerciseQuery);
+    const exerciseResult = await client.query(exerciseQuery);
+
+    if (trainingResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Trainings not found' });
+    }
+
+    const trainingsMap = new Map();
+
+    const exercisesMap = new Map();
+
+    trainingResult.rows.forEach((training) => {
+      trainingsMap.set(training.id, {
+        ...training,
+        exercises: [],
+      });
+    });
+
+    trainingExerciseResult.rows.forEach((trainingExercise) => {
+      const trainingId = trainingExercise.training_id;
+      const exerciseId = trainingExercise.exercise_id;
+
+      if (trainingsMap.has(trainingId)) {
+        trainingsMap.get(trainingId).exercises.push(exerciseId);
+      }
+    });
+
+    exerciseResult.rows.forEach((exercise) => {
+      exercisesMap.set(exercise.exercise_id, {
+        exercise_name: exercise.exercise_name,
+        exercise_description: exercise.exercise_description,
+      });
+    });
+    const trainingsArray = [...trainingsMap.values()];
+
+    trainingsArray.forEach((training) => {
+      training.exercises = training.exercises.map((exerciseId) => {
+        return {
+          exercise_id: exerciseId,
+          ...exercisesMap.get(exerciseId),
+        };
+      });
+    });
+
+    res.status(200).json(trainingsArray);
+  } catch (error) {
+    console.log(error, "Error getting trainings")
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+app.get('/categories', async (req, res) => {
+  try {
+    const query = `SELECT * FROM "category"`;
+    const result = await client.query(query);
+    const categories = result.rows;
+    const categoriesData = categories.map(exercise => {
+      return {
+        name: categories.name,
+      }
+    });
+    res.status(200).json(categoriesData);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.get('/exercises/browse', verifyToken, async (req, res) => {
+  try {
+    const query = `SELECT * FROM "exercise"`;
+
+    const result = await client.query(query);
+    const exercises = result.rows;
+    const exercisesData = exercises.map(exercise => {
+      return {
+        name: exercise.name,
+        description: exercise.description,
+        category: exercise.category_id
+      }
+    });
+    res.status(200).json(exercisesData);
+  }
+  catch (error) {
+    console.error('Error browsing exercises');
     res.status(500).json({ message: 'Internal server error' });
   }
 });
