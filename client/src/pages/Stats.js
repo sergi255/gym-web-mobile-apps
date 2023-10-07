@@ -34,7 +34,12 @@ const Stats = () => {
         },
       });
       if (response.status === 200) {
-        setTrainings(response.data);
+        if(response.data.length === 0){
+          
+        }
+        else{
+          setTrainings(response.data);
+        }
       }
     } catch (error) {
       console.error("Error getting trainings:", error);

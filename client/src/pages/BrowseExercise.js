@@ -101,11 +101,9 @@ const BrowseExercises = () => {
   function getComparator(order, orderBy) {
     return (a, b) => {
       if (orderBy === 'name') {
-        // Sprawdź, czy 'name' istnieje w obiektach 'a' i 'b'
         if (a.name && b.name) {
           return order === 'desc' ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name);
         }
-        // Jeśli 'name' jest niezdefiniowane w jednym z obiektów, porównaj je inaczej lub zwróć 0
         return 0;
       }
       if (orderBy === 'category_id') {
@@ -115,7 +113,6 @@ const BrowseExercises = () => {
     };
   }
   
-// ... reszta kodu ...
 
 return (
   <Box width="100%" marginTop="2%">
