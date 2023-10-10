@@ -6,9 +6,7 @@ import { Layout } from './Layout';
 // open ngrok app
 // type ngrok config add-authtoken <your authtoken> (only once)
 // run the server
-// type ngrok http 3001
-// copy the address from Forwarding header (for example: https://a350-178-235-190-219.ngrok-free.app)
-// paste address to AuthContext API_URL variable (required every time you close ngrok)
+// type ngrok http --domain fox-humble-inherently.ngrok-free.app 3001
 // type npx expo start --tunnel and scan qr code in the Expo Go app
 
 // Color palette
