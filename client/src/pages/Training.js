@@ -29,7 +29,6 @@ const Training = () => {
     const [exerciseList, setExerciseList] = useState([]);
     const [selectedExercises, setSelectedExercises] = useState([]);
     const [selectedExerciseId, setSelectedExerciseId] = useState('');
-
     const apiUrl = `http://localhost:3001/trainings/add`;
 
     const getCookie = (name) => {
@@ -49,7 +48,7 @@ const Training = () => {
                 beginTime: beginTime,
                 endTime: endTime,
                 description: description,
-                selectedExercises: selectedExercises.map((exercise) => exercise.id), // Przesyłamy tylko ID ćwiczeń
+                selectedExercises: selectedExercises.map((exercise) => exercise.id),
             }, {
                 headers: {
                     'Content-Type': 'application/json',

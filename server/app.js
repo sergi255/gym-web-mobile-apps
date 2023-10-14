@@ -11,7 +11,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: '*',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204,
@@ -33,14 +33,14 @@ const secretKey = crypto.randomBytes(32).toString('hex');
 
 client.connect(err => {
   if (err) {
-    console.error('Error connecting to database:', err);
-  } else {
-
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-    });
-    console.log('Connected to database');
-    setupDatabase();
+      console.error('Error connecting to database:', err);
+  } else { 
+      
+      app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+      });
+      console.log('Connected to database');
+      setupDatabase();
   }
 });
 
@@ -90,34 +90,14 @@ function setupDatabase() {
       exercise_id INTEGER REFERENCES exercise(id),
       PRIMARY KEY (training_id, exercise_id)
     );
-
-    CREATE TABLE IF NOT EXISTS plan (
-      id SERIAL PRIMARY KEY,
-      date DATE NOT NULL,
-      user_id INTEGER REFERENCES users(id)
-    );
-
-    CREATE TABLE IF NOT EXISTS plan_training (
-      training_id INTEGER REFERENCES training(id),
-      plan_id INTEGER REFERENCES plan(id),
-      PRIMARY KEY (training_id, plan_id)
-    );  
-
-    CREATE TABLE IF NOT EXISTS performed_exercises (
-      id SERIAL PRIMARY KEY,
-      set_amount INT NOT NULL,
-      rep_amount INT NOT NULL,
-      training_id INTEGER REFERENCES training(id),
-      exercise_id INTEGER REFERENCES exercise(id) 
-    );
   `;
-  //plan_training_id INTEGER REFERENCES plan_training(plan_id) z tabeli performed exercises
+
   client
-    .query(setupDatabaseQuery)
-    .then(() => {
-      console.log('Database setup successfull');
-    })
-    .catch(err => console.log(err));
+      .query(setupDatabaseQuery)
+      .then(() => {
+          console.log('Database setup successfull');
+      })
+      .catch(err => console.log(err));
 
   const checkCategoryQuery = `SELECT COUNT(*) FROM category`;
   client.query(checkCategoryQuery)
@@ -158,7 +138,6 @@ function verifyToken(req, res, next) {
 app.post('/users/login', async (req, res) => {
   try {
     const { login, password } = req.body;
-
     if (login.length === 0 || password.length === 0) {
       return res.status(422).json({ message: 'Invalid credentials' });
     }
@@ -288,7 +267,7 @@ app.delete('/users/deleteUser', verifyToken, async (req, res) => {
   }
 });
 
-app.post('/exercises/addExercise', async (req, res) => {
+app.post('/exercises/addExercise', verifyToken, async (req, res) => {
   try {
     const { name, part, description } = req.body;
 
@@ -314,7 +293,7 @@ app.post('/exercises/addExercise', async (req, res) => {
 });
 
 app.get('/exercises/getUserExercises', verifyToken, async (req, res) => {
-  try {
+  try{
     const userId = req.user.userId;
     const query = `
       SELECT
@@ -333,8 +312,8 @@ app.get('/exercises/getUserExercises', verifyToken, async (req, res) => {
 
     res.status(200).json(result.rows)
   }
-  catch (error) {
-    console.log(error, "Error getting user's exercises")
+  catch(error){
+    console.log(error,"Error getting user's exercises")
     res.status(500).json({ message: 'Internal server error' });
   }
 });
@@ -349,7 +328,6 @@ app.delete('/exercises/deleteExercises', verifyToken, async (req, res) => {
 
     const query = `DELETE FROM "exercise" WHERE id = ANY($1::integer[])`;
     const params = [exerciseIds];
-
     await client.query(query, params);
 
     res.status(200).json({ message: 'Exercises deleted successfully' });
@@ -361,7 +339,7 @@ app.delete('/exercises/deleteExercises', verifyToken, async (req, res) => {
 
 app.post('/trainings/add', verifyToken, async (req, res) => {
   try {
-    const { name, date, beginTime, endTime, description, selectedExercises } = req.body; // Dodaj selectedExercises do destrukturyzacji
+    const { name, date, beginTime, endTime, description, selectedExercises } = req.body;
 
     const userId = req.user.userId;
 
@@ -369,27 +347,25 @@ app.post('/trainings/add', verifyToken, async (req, res) => {
       return res.status(422).json({ message: 'Invalid credentials' });
     }
 
-    const insertQuery = `INSERT INTO "training" (name, date, begin_time, end_time, description, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`; // Dodaj "RETURNING id" dla pobrania ID nowo dodanego treningu
+    const insertQuery = `INSERT INTO "training" (name, date, begin_time, end_time, description, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`;
     const result = await client.query(insertQuery, [name, date, beginTime, endTime, description, userId]);
 
-    const trainingId = result.rows[0].id; // Pobierz ID nowo dodanego treningu
+    const trainingId = result.rows[0].id;
 
     for (const exerciseId of selectedExercises) {
-      // Wstaw informację do tabeli "training_exercise"
       const insertTrainingExerciseQuery = `INSERT INTO training_exercise (training_id, exercise_id) VALUES ($1, $2)`;
       await client.query(insertTrainingExerciseQuery, [trainingId, exerciseId]);
     }
 
     res.status(200).json({ message: 'Training added successfully' });
   } catch (error) {
-    console.error('Error adding training:', error); // Wyświetl szczegóły błędu
+    console.error('Error adding training:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-
 app.get('/trainings/getStats', verifyToken, async (req, res) => {
-  try {
+  try{
     const userId = req.user.userId;
     const query = `
       SELECT
@@ -415,7 +391,6 @@ app.get('/trainings/getTrainings', verifyToken, async (req, res) => {
   try {
     const userId = req.user.userId;
 
-    // Zapytanie do tabeli training
     const trainingQuery = `
       SELECT
         *
@@ -446,10 +421,8 @@ app.get('/trainings/getTrainings', verifyToken, async (req, res) => {
       return res.status(404).json({ message: 'Trainings not found' });
     }
 
-    // Mapa do przechowywania treningów
     const trainingsMap = new Map();
 
-    // Mapa do przechowywania informacji o ćwiczeniach
     const exercisesMap = new Map();
 
     trainingResult.rows.forEach((training) => {
@@ -474,11 +447,8 @@ app.get('/trainings/getTrainings', verifyToken, async (req, res) => {
         exercise_description: exercise.exercise_description,
       });
     });
-
-    // Konwertuj mapę na tablicę
     const trainingsArray = [...trainingsMap.values()];
 
-    // Aktualizuj dane ćwiczeń w treningach
     trainingsArray.forEach((training) => {
       training.exercises = training.exercises.map((exerciseId) => {
         return {
