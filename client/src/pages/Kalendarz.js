@@ -4,6 +4,15 @@ import {
   dateFnsLocalizer,
   Views,
 } from "react-big-calendar";
+import {
+  Paper,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+} from '@mui/material';
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import parseISO from "date-fns/parseISO";
 import startOfWeek from "date-fns/startOfWeek";
@@ -46,25 +55,25 @@ function Kalendarz() {
         const beginTimeParts = training.begin_time.split(":");
         startTime.setHours(Number(beginTimeParts[0]));
         startTime.setMinutes(Number(beginTimeParts[1]));
-
+  
         const endTime = parseISO(training.date);
         const endTimeParts = training.end_time.split(":");
         endTime.setHours(Number(endTimeParts[0]));
         endTime.setMinutes(Number(endTimeParts[1]));
-
+  
         if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
           console.error("Invalid time value in training:", training);
           return null;
         }
-
+  
         // Sprawdzamy, czy pole `exercises` istnieje i czy nie jest puste
         const exercises = training.exercises || [];
-
+  
         return {
-          title: training.name,
+          title: training.training_name,
           start: startTime,
           end: endTime,
-          description: training.description,
+          description: training.training_description,
           exercises: exercises,
         };
       } catch (error) {
@@ -73,6 +82,7 @@ function Kalendarz() {
       }
     }).filter(Boolean);
   };
+  
 
   const getTrainings = async () => {
     try {
@@ -110,6 +120,7 @@ function Kalendarz() {
 
   const handleTrainingClick = (event) => {
     setSelectedTraining(event);
+    console.log(event); // Dodaj tę linię, aby wyświetlić obiekt w konsoli
   };
 
   return (
@@ -125,30 +136,34 @@ function Kalendarz() {
         defaultView={Views.MONTH}
         onSelectEvent={event => setSelectedTraining(event)}
       />
-      {selectedTraining && (
-        <div>
-          <h2>Selected Training</h2>
-          <p>Name: {selectedTraining.title}</p>
-          <p>Date: {format(selectedTraining.start, "yyyy-MM-dd")}</p>
-          <p>Begin Time: {format(selectedTraining.start, "HH:mm")}</p>
-          <p>End Time: {format(selectedTraining.end, "HH:mm")}</p>
-          <p>Description: {selectedTraining.description}</p>
-          <h3>Exercises:</h3>
-          <ul>
-            {selectedTraining.exercises.map((exercise) => (
-              <li key={exercise.exercise_id}>
-                ID ćwiczenia: {exercise.exercise_id}
-                <br />
-                Ćwiczenie: {exercise.exercise_name}
-                <br />
-                Opis: {exercise.exercise_description}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+     {selectedTraining && (
+  <div>
+    <h2>Selected Training</h2>
+    <p>Name: {selectedTraining.title}</p>
+    <p>Date: {format(selectedTraining.start, "yyyy-MM-dd")}</p>
+    <p>Begin Time: {format(selectedTraining.start, "HH:mm")}</p>
+    <p>End Time: {format(selectedTraining.end, "HH:mm")}</p>
+    <p>Description: {selectedTraining.description}</p>
+    <h3>Exercises:</h3>
+    <ul>
+      {selectedTraining.exercises.map((exercise) => (
+        <li key={exercise.exercise_id}>
+          ID ćwiczenia: {exercise.exercise_id}
+          <br />
+          Ćwiczenie: {exercise.exercise_name}
+          <br />
+          Opis: {exercise.exercise_description}
+          <br />
+          Liczba serii: {exercise.set_amount} {/* Dodane */}
+          <br />
+          Liczba powtórzeń: {exercise.rep_amount} {/* Dodane */}
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
     </div>
-  );
+  );  
 }
 
 export default Kalendarz;
