@@ -7,9 +7,11 @@ import Login from "./screens/Login";
 import Profile from "./screens/Profile";
 import Register from "./screens/Register";
 import Stats from "./screens/Stats";
-import Exercises from "./screens/Exercises";
+import AddExercises from "./screens/AddExercises";
 import MyExercises from "./screens/MyExercises";
 import BrowseExercises from "./screens/BrowseExercises";
+import MyTrainings from "./screens/MyTrainings";
+import AddTrainings from "./screens/AddTrainings";
 
 const Drawer = createDrawerNavigator();
 
@@ -24,13 +26,11 @@ export const Layout = () => {
             <Drawer.Screen name="Home" component={Home} />
             <Drawer.Screen name="Profile" component={Profile} />
             <Drawer.Screen name="Stats" component={Stats} />
-            <Drawer.Screen
-              name="Exercises"
-              component={ExerciseStack}
-              options={{
-                headerShown:false,
-              }}
-            />
+            <Drawer.Screen name="Add Exercises" component={AddExercises} />
+            <Drawer.Screen name="My Exercises" component={MyExercises} />
+            <Drawer.Screen name="Browse Exercises" component={BrowseExercises} />
+            <Drawer.Screen name="Add Trainings" component={AddTrainings} />
+            <Drawer.Screen name="My Trainings" component={MyTrainings} />
           </>
         ) : (
           <>
@@ -40,15 +40,5 @@ export const Layout = () => {
         )}
       </Drawer.Navigator>
     </NavigationContainer>
-  );
-};
-
-const ExerciseStack = () => {
-  return (
-    <Drawer.Navigator>
-      <Drawer.Screen name="Exercises" component={Exercises} />
-      <Drawer.Screen name="My Exercises" component={MyExercises} />
-      <Drawer.Screen name="Browse Exercises" component={BrowseExercises} />
-    </Drawer.Navigator>
   );
 };
