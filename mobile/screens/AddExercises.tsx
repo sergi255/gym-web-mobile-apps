@@ -2,10 +2,10 @@ import { View, Text } from 'react-native'
 import React from 'react'
 import { styles } from '../styles/styles'
 
-export default function Profile() {
+export default function AddExercises() {
   return (
     <View style={styles.container}>
-      <Text>Profile</Text>
+      <Text>Add Exercises</Text>
     </View>
   )
 }

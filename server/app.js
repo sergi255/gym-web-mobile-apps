@@ -326,6 +326,9 @@ app.delete('/exercises/deleteExercises', verifyToken, async (req, res) => {
       return res.status(400).json({ message: 'Invalid exercises' });
     }
 
+    const deleteTrainingExerciseQuery = `DELETE FROM "training_exercise" WHERE exercise_id = ANY($1::integer[])`;
+    await client.query(deleteTrainingExerciseQuery, [exerciseIds]);
+
     const query = `DELETE FROM "exercise" WHERE id = ANY($1::integer[])`;
     const params = [exerciseIds];
     await client.query(query, params);
