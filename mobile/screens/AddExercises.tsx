@@ -15,7 +15,6 @@ export default function AddExercises() {
   const addExercise = async () => {
     try {
       if (name && part && description) {
-        console.log(name, part, description)
         const response = await axios.post(`${API_URL}/exercises/addExercise`, {
           name: name,
           part: part,
@@ -23,7 +22,6 @@ export default function AddExercises() {
         });
 
         if (response.status === 200) {
-          console.log('Exercise added');
           setName('');
           setPart('');
           setDescription('');

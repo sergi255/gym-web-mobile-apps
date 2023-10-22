@@ -72,7 +72,8 @@ function setupDatabase() {
       id SERIAL PRIMARY KEY,
       name VARCHAR(255) NOT NULL UNIQUE,
       description VARCHAR(255),
-      category_id INTEGER REFERENCES category(id)
+      category_id INTEGER REFERENCES category(id),
+      user_id INTEGER REFERENCES users(id)
     );
 
     CREATE TABLE IF NOT EXISTS training (
@@ -269,8 +270,8 @@ app.delete('/users/deleteUser', verifyToken, async (req, res) => {
 
 app.post('/exercises/addExercise', verifyToken, async (req, res) => {
   try {
+    const userId = req.user.userId;
     const { name, part, description } = req.body;
-    console.log(name, part, description)
     if (name.length === 0 || part.length === 0 || description.length === 0) {
       return res.status(422).json({ message: 'Invalid credentials' });
     }
@@ -282,8 +283,8 @@ app.post('/exercises/addExercise', verifyToken, async (req, res) => {
       return res.status(409).json({ message: 'Exercise already exists' });
     }
 
-    const insertQuery = `INSERT INTO "exercise" (name, description, category_id) VALUES ($1, $2, $3)`;
-    await client.query(insertQuery, [name, description, part]);
+    const insertQuery = `INSERT INTO "exercise" (name, description, category_id, user_id) VALUES ($1, $2, $3, $4)`;
+    await client.query(insertQuery, [name, description, part, userId]);
 
     res.status(200).json({ message: 'Exercise added successfully' });
   } catch (error) {
@@ -293,6 +294,33 @@ app.post('/exercises/addExercise', verifyToken, async (req, res) => {
 });
 
 app.get('/exercises/getUserExercises', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const query = `
+      SELECT
+        exercise.id,
+        exercise.name AS exercise_name,
+        exercise.description,
+        category.name AS category_name
+      FROM exercise
+      JOIN category ON exercise.category_id = category.id
+      WHERE exercise.user_id = $1
+    `;
+
+    const result = await client.query(query, [userId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Exercises not found" });
+    }
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.log(error, "Error getting user's exercises");
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.get('/exercises/getExercises', verifyToken, async (req, res) => {
   try{
     const userId = req.user.userId;
     const query = `
@@ -313,7 +341,7 @@ app.get('/exercises/getUserExercises', verifyToken, async (req, res) => {
     res.status(200).json(result.rows)
   }
   catch(error){
-    console.log(error,"Error getting user's exercises")
+    console.log(error,"Error getting exercises")
     res.status(500).json({ message: 'Internal server error' });
   }
 });
