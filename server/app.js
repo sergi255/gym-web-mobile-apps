@@ -270,7 +270,7 @@ app.delete('/users/deleteUser', verifyToken, async (req, res) => {
 app.post('/exercises/addExercise', verifyToken, async (req, res) => {
   try {
     const { name, part, description } = req.body;
-
+    console.log(name, part, description)
     if (name.length === 0 || part.length === 0 || description.length === 0) {
       return res.status(422).json({ message: 'Invalid credentials' });
     }
@@ -476,7 +476,7 @@ app.get('/categories', async (req, res) => {
     const categories = result.rows;
     const categoriesData = categories.map(exercise => {
       return {
-        name: categories.name,
+        name: exercise.name,
       }
     });
     res.status(200).json(categoriesData);

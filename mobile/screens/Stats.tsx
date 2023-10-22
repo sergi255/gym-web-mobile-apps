@@ -105,8 +105,6 @@ const prepareData = () => {
   const lastTrainingDate = lastTraining.date;
   return setLastTrainingDate(lastTrainingDate);
   }
-
-  
 };
 
   useEffect(() => {

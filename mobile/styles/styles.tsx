@@ -35,6 +35,11 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
     paddingLeft: 8,
   },
+  pickerItem: {
+    backgroundColor: '#6422b8',
+    borderColor: 'gray',
+    borderWidth: 1,
+  },
   button: {
     width: '80%',
     height: 40,
