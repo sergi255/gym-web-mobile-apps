@@ -22,6 +22,7 @@ import { visuallyHidden } from '@mui/utils';
 function ExercisesTable(props) {
   const {
     exercises,
+    selectedCategory,
     order,
     orderBy,
     page,
@@ -30,7 +31,6 @@ function ExercisesTable(props) {
     handleDeleteExercises,
     handleChangePage,
     handleChangeRowsPerPage,
-    visibleRows,
     handleSelectAllClick,
     handleRequestSort,
   } = props;
@@ -56,18 +56,22 @@ function ExercisesTable(props) {
     },
   ];
 
+  // Filtruj ćwiczenia na podstawie wybranej kategorii
+  const filteredExercises = exercises.filter((exercise) =>
+    selectedCategory === 'all' ? true : exercise.category_name === selectedCategory
+  );
+
   function EnhancedTableHead(props) {
-    const {order, orderBy, onRequestSort } = props;
-  
+    const { order, orderBy, onRequestSort } = props;
+
     const createSortHandler = (property) => (event) => {
       onRequestSort(event, property);
     };
-  
+
     return (
       <TableHead>
         <TableRow>
-          <TableCell padding="checkbox">
-          </TableCell>
+          <TableCell padding="checkbox"></TableCell>
           {headCells.map((headCell) => (
             <TableCell
               key={headCell.id}
@@ -97,8 +101,7 @@ function ExercisesTable(props) {
       </TableHead>
     );
   }
-  
-  
+
   EnhancedTableHead.propTypes = {
     numSelected: PropTypes.number.isRequired,
     onRequestSort: PropTypes.func.isRequired,
@@ -110,7 +113,7 @@ function ExercisesTable(props) {
 
   function EnhancedTableToolbar(props) {
     const { numSelected } = props;
-  
+
     return (
       <Toolbar
         sx={{
@@ -141,7 +144,8 @@ function ExercisesTable(props) {
             Wszystkie ćwiczenia
           </Typography>
         )}
-  
+
+
         {numSelected > 0 && (
           <Tooltip title="Usuń">
             <IconButton onClick={handleDeleteExercises}>
@@ -151,64 +155,63 @@ function ExercisesTable(props) {
         )}
       </Toolbar>
     );
-  }  
-  
+  }
+
   EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
   };
-  
+
   return (
     <Box>
       <EnhancedTableToolbar />
-          <TableContainer>
-            <Table
-              sx={{ minWidth: 750 }}
-              aria-labelledby="tableTitle"
-              size={dense ? 'small' : 'medium'}
-            >
+      <TableContainer>
+        <Table
+          sx={{ minWidth: 750 }}
+          aria-labelledby="tableTitle"
+          size={dense ? 'small' : 'medium'}
+        >
 
-              <EnhancedTableHead
-                order={order}
-                orderBy={orderBy}
-                onSelectAllClick={handleSelectAllClick}
-                onRequestSort={handleRequestSort}
-                rowCount={exercises.length}
-              />
+          <EnhancedTableHead
+            order={order}
+            orderBy={orderBy}
+            onSelectAllClick={handleSelectAllClick}
+            onRequestSort={handleRequestSort}
+            rowCount={exercises.length}
+          />
 
-              <TableBody>
-                {visibleRows.map((row, index) => {
-                  const labelId = `enhanced-table-checkbox-${index}`;
+<TableBody>
+  {filteredExercises.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+    const labelId = `enhanced-table-checkbox-${index}`;
 
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      key={row.id}
-                      sx={{ cursor: 'pointer' }}
-                    >
-                      <TableCell padding="checkbox">
-                      </TableCell>
-                      <TableCell component="th" id={labelId} scope="row" padding="none">
-                        {row.exercise_name}
-                      </TableCell>
-                      <TableCell>{row.description}</TableCell>
-                      <TableCell align="right">{row.category_name}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={exercises.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </TableContainer>
+    return (
+      <TableRow
+        hover
+        role="checkbox"
+        tabIndex={-1}
+        key={row.id}
+        sx={{ cursor: 'pointer' }}
+      >
+        <TableCell padding="checkbox"></TableCell>
+        <TableCell component="th" id={labelId} scope="row" padding="none">
+          {row.exercise_name}
+        </TableCell>
+        <TableCell>{row.description}</TableCell>
+        <TableCell align="right">{row.category_name}</TableCell>
+      </TableRow>
+    );
+  })}
+</TableBody>
+        </Table>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={filteredExercises.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </TableContainer>
     </Box>
   );
 }

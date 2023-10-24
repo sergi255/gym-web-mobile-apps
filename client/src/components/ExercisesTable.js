@@ -23,6 +23,7 @@ import { visuallyHidden } from '@mui/utils';
 function ExercisesTable(props) {
   const {
     exercises,
+    selectedCategory,
     order,
     orderBy,
     selected,
@@ -33,7 +34,6 @@ function ExercisesTable(props) {
     handleChangePage,
     handleChangeRowsPerPage,
     isSelected,
-    visibleRows,
     handleSelectAllClick,
     handleClick,
     handleRequestSort,
@@ -59,7 +59,10 @@ function ExercisesTable(props) {
       label: 'Kategoria',
     },
   ];
-
+  
+  const filteredExercises = exercises.filter((exercise) =>
+    selectedCategory === 'all' ? true : exercise.category_name === selectedCategory
+  );
   function EnhancedTableHead(props) {
     const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
   
@@ -190,7 +193,7 @@ function ExercisesTable(props) {
               />
 
               <TableBody>
-                {visibleRows.map((row, index) => {
+                {filteredExercises.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
                   const isItemSelected = isSelected(row.id);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -227,7 +230,7 @@ function ExercisesTable(props) {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={exercises.length}
+              count={filteredExercises.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}
