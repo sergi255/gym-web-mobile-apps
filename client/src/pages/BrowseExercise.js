@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Grid,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import axios from 'axios';
 import ExercisesTable from '../components/BrowseExercisesTable'
@@ -15,8 +17,10 @@ const BrowseExercises = () => {
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [categories, setCategories] = useState([]);
   const getExercisesUrl = 'http://localhost:3001/exercises/getExercises';
+  const getCategoriesUrl = 'http://localhost:3001/categories';
 
   const getCookie = (name) => {
     const value = `; ${document.cookie}`;
@@ -46,14 +50,36 @@ const BrowseExercises = () => {
     }
   };
 
-  
+
+  const getCategoriesData = async () => {
+    try {
+      const response = await axios.get(getCategoriesUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        setCategories(response.data);
+      }
+      else {
+        alert('Failed to fetch categories data.');
+      }
+    } catch (error) {
+      console.error('Error fetching categories data:', error);
+      alert('Failed to fetch categories data.');
+    }
+  };
+    
+
   useEffect(() => {
     const sessionData = getCookie('session_data');
     if (sessionData) {
       setToken(sessionData);
     }
     if (token) {
+      console.log(categories);
       getExerciseData();
+      getCategoriesData();
     }
   }, [token]);
 
@@ -74,9 +100,9 @@ const BrowseExercises = () => {
       ),
     [page, rowsPerPage, exercises],
   );
-  
 
-  useEffect(()=>{
+
+  useEffect(() => {
   }, []
   )
   const handleRequestSort = (event, property) => {
@@ -112,29 +138,50 @@ const BrowseExercises = () => {
       return 0;
     };
   }
-  
 
-return (
-  <Box width="100%" marginTop="2%">
-    <Grid container className="stack">
-      <Box className="exercisesTable" overflow="auto">
-        <ExercisesTable
-          exercises={exercises} 
-          order={order}
-          orderBy={orderBy}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          dense={dense}
-          handleChangePage={handleChangePage}
-          handleChangeRowsPerPage={handleChangeRowsPerPage}
-          visibleRows={visibleRows}
-          handleRequestSort={handleRequestSort}
-        />
-      </Box>
-    </Grid>
-  </Box>
-);
 
-};
+  return (
+    <Box width="100%" marginTop="2%">
+      <Grid container className="stack">
+        <Box className="filters">
+          <label htmlFor="category">Wybierz kategorię: </label>
+          <Select
+            value={selectedCategory}
+            onChange={(event) => {
+              const newCategory = event.target.value;
+              setSelectedCategory(newCategory);
+            }}
+          >
+            <MenuItem value="all">Wszystkie</MenuItem>
+            <MenuItem value="Klatka piersiowa">Klatka piersiowa</MenuItem>
+            <MenuItem value="Plecy">Plecy</MenuItem>
+            <MenuItem value="Barki">Barki</MenuItem>
+            <MenuItem value="Biceps">Biceps</MenuItem>
+            <MenuItem value="Triceps">Triceps</MenuItem>
+            <MenuItem value="Brzuch">Brzuch</MenuItem>
+            <MenuItem value="Nogi">Nogi</MenuItem>
+            <MenuItem value="Pośladki">Pośladki</MenuItem>
+          </Select>
+        </Box>
+        <Box className="exercisesTable" overflow="auto">
+          <ExercisesTable
+            exercises={exercises}
+            selectedCategory={selectedCategory}
+            order={order}
+            orderBy={orderBy}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            dense={dense}
+            handleChangePage={handleChangePage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
+            visibleRows={visibleRows}
+            handleRequestSort={handleRequestSort}
+          />
+        </Box>
+      </Grid>
+    </Box>
+  );
+          }
+          
 
 export default BrowseExercises;
