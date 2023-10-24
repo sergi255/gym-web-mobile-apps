@@ -40,6 +40,7 @@ const Training = () => {
     };
 
     const handleAdd = async (e) => {
+        console.log(selectedExercises);
         e.preventDefault();
         try {
             const response = await axios.post(apiUrl, {
@@ -48,7 +49,7 @@ const Training = () => {
                 beginTime: beginTime,
                 endTime: endTime,
                 description: description,
-                selectedExercises: selectedExercises.map((exercise) => exercise.id),
+                selectedExercises: selectedExercises,
             }, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -274,6 +275,8 @@ const Training = () => {
                                             <TableCell>ID</TableCell>
                                             <TableCell>Nazwa ćwiczenia</TableCell>
                                             <TableCell>Opis</TableCell>
+                                            <TableCell>Serie</TableCell>
+                                            <TableCell>Powtórzenia</TableCell>
                                             <TableCell>Akcja</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -283,6 +286,39 @@ const Training = () => {
                                                 <TableCell>{exercise.id}</TableCell>
                                                 <TableCell>{exercise.exercise_name}</TableCell>
                                                 <TableCell>{exercise.description}</TableCell>
+                                                {/* Pola select dla set_amount i rep_amount */}
+                                                <TableCell>
+                                                    <Select
+                                                        fullWidth
+                                                        value={exercise.set_amount}
+                                                        onChange={(e) => {
+                                                            exercise.set_amount = e.target.value;
+                                                            setSelectedExercises([...selectedExercises]);
+                                                        }}
+                                                    >
+                                                        {Array.from({ length: 10 }, (_, i) => (
+                                                            <MenuItem key={i} value={i + 1}>
+                                                                {i + 1}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Select
+                                                        fullWidth
+                                                        value={exercise.rep_amount}
+                                                        onChange={(e) => {
+                                                            exercise.rep_amount = e.target.value;
+                                                            setSelectedExercises([...selectedExercises]);
+                                                        }}
+                                                    >
+                                                        {Array.from({ length: 20 }, (_, i) => (
+                                                            <MenuItem key={i} value={i + 1}>
+                                                                {i + 1}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                </TableCell>
                                                 <TableCell>
                                                     <Button
                                                         variant="contained"
@@ -297,6 +333,7 @@ const Training = () => {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
+
                         </Stack>
                     </Box>
                 </Grid>

@@ -35,6 +35,11 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
     paddingLeft: 8,
   },
+  pickerItem: {
+    backgroundColor: '#6422b8',
+    borderColor: 'gray',
+    borderWidth: 1,
+  },
   button: {
     width: '80%',
     height: 40,
@@ -87,5 +92,14 @@ export const styles = StyleSheet.create({
   tableCellData: {
     marginLeft: 7,
     color: '#ffd93b',
+  },
+  exerciseItem: {
+    backgroundColor: '#6422b8',
+    padding: 16,
+    marginTop: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-around'
   },
 });

@@ -100,13 +100,13 @@ const prepareData = () => {
     };
   });
 
-  const lastTraining = trainingsFormatedDate[trainingsFormatedDate.length - 1];
-  if(lastTraining){
-  const lastTrainingDate = lastTraining.date;
-  return setLastTrainingDate(lastTrainingDate);
+  if (trainingsFormatedDate.length > 0) {
+    const lastTraining = trainingsFormatedDate[trainingsFormatedDate.length - 1];
+    const lastTrainingDate = lastTraining.date;
+    setLastTrainingDate(lastTrainingDate); 
+  } else {
+    setLastTrainingDate("-- -- --");
   }
-
-  
 };
 
   useEffect(() => {

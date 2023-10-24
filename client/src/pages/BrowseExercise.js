@@ -16,7 +16,7 @@ const BrowseExercises = () => {
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const getExercisesUrl = 'http://localhost:3001/exercises/getUserExercises';
+  const getExercisesUrl = 'http://localhost:3001/exercises/getExercises';
 
   const getCookie = (name) => {
     const value = `; ${document.cookie}`;
