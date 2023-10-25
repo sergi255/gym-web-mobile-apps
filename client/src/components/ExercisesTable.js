@@ -17,7 +17,9 @@ import {
   alpha,
 } from '@mui/material';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit'; // Import ikony edycji
 import { visuallyHidden } from '@mui/utils';
 
 function ExercisesTable(props) {
@@ -37,6 +39,7 @@ function ExercisesTable(props) {
     handleSelectAllClick,
     handleClick,
     handleRequestSort,
+    handleEditExercises, 
   } = props;
 
   const headCells = [
@@ -162,6 +165,13 @@ function ExercisesTable(props) {
           <Tooltip title="Usuń">
             <IconButton onClick={handleDeleteExercises}>
               <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        {numSelected === 1 && (
+          <Tooltip title="Edytuj">
+            <IconButton onClick={handleEditExercises}>
+              <EditIcon />
             </IconButton>
           </Tooltip>
         )}
