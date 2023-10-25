@@ -8,6 +8,7 @@ import {
 import axios from 'axios';
 import ExercisesTable from '../components/ExercisesTable'
 import '../css/myExercises.css';
+import { Link, useHistory } from 'react-router-dom';
 
 const MyExercises = () => {
   const [token, setToken] = useState();

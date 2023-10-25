@@ -19,6 +19,7 @@ const BrowseExercises = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [categories, setCategories] = useState([]);
+  
   const getExercisesUrl = 'http://localhost:3001/exercises/getExercises';
   const getCategoriesUrl = 'http://localhost:3001/categories';
 
@@ -77,7 +78,6 @@ const BrowseExercises = () => {
       setToken(sessionData);
     }
     if (token) {
-      console.log(categories);
       getExerciseData();
       getCategoriesData();
     }
