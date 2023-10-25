@@ -69,7 +69,7 @@ const BrowseExercises = () => {
       alert('Failed to fetch categories data.');
     }
   };
-    
+
 
   useEffect(() => {
     const sessionData = getCookie('session_data');
@@ -101,10 +101,11 @@ const BrowseExercises = () => {
     [page, rowsPerPage, exercises],
   );
 
-
   useEffect(() => {
-  }, []
-  )
+    setPage(0);
+  }, [selectedCategory]);
+
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -181,7 +182,7 @@ const BrowseExercises = () => {
       </Grid>
     </Box>
   );
-          }
-          
+}
+
 
 export default BrowseExercises;

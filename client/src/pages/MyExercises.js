@@ -106,6 +106,10 @@ const MyExercises = () => {
     }
   }, [token]);
 
+  useEffect(() => {
+    setPage(0);
+  }, [selectedCategory]);
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
