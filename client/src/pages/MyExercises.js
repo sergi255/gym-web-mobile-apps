@@ -77,6 +77,7 @@ const MyExercises = () => {
     }
   };
 
+
   const getCategoriesData = async () => {
     try {
       const response = await axios.get(getCategoriesUrl, {

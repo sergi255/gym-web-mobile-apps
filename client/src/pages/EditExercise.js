@@ -22,7 +22,7 @@ function mapPartNameToNumber(partName) {
       case 'Pośladki':
         return 8;
       default:
-        return 1; // Domyślnie ustawiłem na 1, możesz wybrać inny numer domyślny
+        return 1;
     }
   }
 
@@ -44,7 +44,6 @@ const EditExercise = () => {
         }
     };
 
-    // Wykonaj żądanie GET, aby pobrać dane ćwiczenia po załadowaniu komponentu
     const getExerciseData = async () => {
         try {
             const response = await axios.get(getExerciseUrl, {
@@ -60,7 +59,11 @@ const EditExercise = () => {
                 setPart(partNumber);
                 setDescription(exerciseData.description);
                 console.log('exerciseData received:', exerciseData);
-            } else {
+            } 
+            else if (response.status === 403) {
+                alert('You are not authorized to view this page.');
+            }
+            else {
                 alert('Failed to fetch exercise data.');
             }
         } catch (error) {
@@ -83,7 +86,6 @@ const EditExercise = () => {
         }
     }, [token]);
 
-    // Funkcja obsługująca aktualizację ćwiczenia
     const updateExercise = async (e) => {
         e.preventDefault();
         try {

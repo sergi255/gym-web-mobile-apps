@@ -13,6 +13,7 @@ import BrowseExercise from './pages/BrowseExercise'
 import MyExercises from './pages/MyExercises'
 import Kalendarz from './pages/Kalendarz'
 import EditExercise from './pages/EditExercise';
+import EditTraining from './pages/EditTraining';
 
 // Components
 import Navbar from './components/Navbar'
@@ -40,6 +41,7 @@ function App() {
           <Route path="/register" element={<Register/>}/>
           <Route path="/trainings/add" element={<Training/>}/>
           <Route path="/trainings/browse" element={<Kalendarz/>}/>
+          <Route path="/trainings/edit/:id" element={<EditTraining/>}/>
           <Route path="/exercises/add" element={<Exercise/>}/>
           <Route path="/exercises/edit/:id" element={<EditExercise/>}/>
           <Route path="/exercises/browse" element={<BrowseExercise/>}/>
