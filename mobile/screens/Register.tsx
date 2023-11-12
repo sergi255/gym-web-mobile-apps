@@ -1,11 +1,10 @@
-import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { useAuth } from '../app/context/AuthContext';
 import { styles } from '../styles/styles'
+import Toast from 'react-native-toast-message';
 
 const Register = () => {
-  const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -14,9 +13,15 @@ const Register = () => {
   const handleRegister = async () => {
     const result = await onRegister!(email, username, password);
     if (result && result.error) {
-      alert(result.msg);
+      Toast.show({
+        type: 'error',
+        text1: 'Błąd podczas rejestracji.',
+      });
     } else{
-      navigation.navigate('Login')
+      Toast.show({
+        type: 'success',
+        text1: 'Konto utworzone pomyślnie!',
+      });
     }
   }
 
@@ -48,9 +53,6 @@ const Register = () => {
       <TouchableOpacity style={styles.button} onPress={handleRegister}>
         <Text style={styles.buttonText}>Zarejestruj się</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={ () => { navigation.navigate('Login')} }>
-          <Text style={styles.buttonText}>Masz konto? Zaloguj się</Text>
-        </TouchableOpacity>
     </View>
   );
 };

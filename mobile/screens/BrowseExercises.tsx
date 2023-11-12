@@ -57,18 +57,18 @@ export default function BrowseExercises() {
   return (
     <View style={styles.container}>
       <View style={styles.exerciseItem}>
-        <Text style={styles.buttonText}>Nazwa</Text>
-        <Text style={styles.buttonText}>Opis</Text>
-        <Text style={styles.buttonText}>Kategoria</Text>
+        <Text style={[styles.buttonText, styles.column]}>Nazwa</Text>
+        <Text style={[styles.buttonText, styles.column]}>Opis</Text>
+        <Text style={[styles.buttonText, styles.column]}>Kategoria</Text>
       </View>
       <FlatList
         data={exercises}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.exerciseItem}>
-            <Text style={styles.buttonText}>{item.exercise_name}</Text>
-            <Text style={styles.buttonText}>{item.description}</Text>
-            <Text style={styles.buttonText}>{item.category_name}</Text>
+            <Text style={[styles.buttonText, styles.column]}>{item.exercise_name}</Text>
+            <Text style={[styles.buttonText, styles.column]}>{item.description}</Text>
+            <Text style={[styles.buttonText, styles.column]}>{item.category_name}</Text>
           </View>
         )}
       />

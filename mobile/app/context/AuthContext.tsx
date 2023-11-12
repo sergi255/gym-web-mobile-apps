@@ -53,7 +53,7 @@ export const AuthProvider = ({children}: any) => {
         try{
             return await axios.post(`${API_URL}/users/register`, { email, login, password })
         } catch(error){
-            return { error: true, msg: (error as any).response.data.msg };
+            return { error: true, msg: (error as any).response.data.msg};
         }
     }
 

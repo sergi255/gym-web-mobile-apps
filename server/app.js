@@ -157,7 +157,7 @@ app.post('/users/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid password' });
     }
 
-    const token = jwt.sign({ userId: user.id, userLogin: user.login }, secretKey, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id, userLogin: user.login }, secretKey, { expiresIn: '7d' });
 
     res.status(200).json({ token });
   } catch (error) {
@@ -381,7 +381,6 @@ app.post('/trainings/add', verifyToken, async (req, res) => {
 
     const trainingId = result.rows[0].id;
 
-    // Wstaw dane dotyczące ćwiczeń treningu do tabeli "training_exercise" wraz z set_amount i rep_amount
     for (const exercise of selectedExercises) {
       const { id, set_amount, rep_amount } = exercise;
 
@@ -453,7 +452,7 @@ app.get('/trainings/getTrainings', verifyToken, async (req, res) => {
         FROM training t
         WHERE t.user_id = $1
       `,
-      values: [userId], // Przekazywanie parametru userId
+      values: [userId],
     };
 
     const result = await client.query(trainingQuery);
