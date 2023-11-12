@@ -18,7 +18,8 @@ import {
 } from '@mui/material';
 import '../css/register.css';
 import axios from 'axios';
-
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const EditTraining = () => {
     const [name, setName] = useState('');
     const [date, setDate] = useState('');
@@ -42,7 +43,6 @@ const EditTraining = () => {
     };
 
     const handleUpdate = async (e) => {
-        console.log(selectedExercises);
         e.preventDefault();
         try {
             const response = await axios.put(updateTrainingUrl, {
@@ -59,17 +59,19 @@ const EditTraining = () => {
                 },
             });
             if (response.status === 200) {
-                alert('Successfully updated training.');
-                console.log(response.data);
+              const notify = () => toast("Trening zaktualizowany pomyślnie");
+              notify();
             } else {
-                alert('Failed to add training.');
+              const notify = () => toast("Nie udało sie zaktualizować treningu");
+              notify();
             }
         } catch (error) {
             if (error.response && error.response.status === 422) {
-                alert('Input data cannot be empty.');
+                const notify = () => toast("Dane nie mogą być puste");
+                notify();
             } else {
-                console.error('Error:', error);
-                alert('Failed to update training. Please try again.');
+              const notify = () => toast("Nie udało sie zaktualizować treningu. Spróbuj ponownie");
+              notify();
             }
         }
     };
@@ -91,11 +93,13 @@ const EditTraining = () => {
                 setDescription(trainingData.training_description);
                 setSelectedExercises(trainingData.exercises);
             } else {
-                alert('Failed to fetch training data.');
+              const notify = () => toast("Nie udało sie pobrać danych treningu");
+              notify();
             }
         } catch (error) {
             console.error('Error fetching training data:', error);
-            alert('Failed to fetch training data.');
+            const notify = () => toast("Nie udało sie pobrać danych treningu");
+            notify();
         }
     };
 
@@ -118,11 +122,13 @@ const EditTraining = () => {
             if (response.status === 200) {
                 setExerciseList(response.data);
             } else {
-                alert('Failed to fetch exercise data.');
+              const notify = () => toast("Nie udało sie pobrać danych ćwiczeń");
+              notify();
             }
         } catch (error) {
             console.error('Error fetching exercise data:', error);
-            alert('Failed to fetch exercise data.');
+            const notify = () => toast("Nie udało sie pobrać danych ćwiczeń");
+            notify();
         }
     };
 
@@ -146,13 +152,6 @@ const EditTraining = () => {
         }
     };
         
-    useEffect(() => {
-        const sessionData = getCookie('session_data');
-        if (sessionData) {
-            setToken(sessionData);
-        }
-    }, []);
-
     useEffect(() => {
         const sessionData = getCookie('session_data');
         if (sessionData) {

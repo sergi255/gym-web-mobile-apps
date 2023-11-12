@@ -5,6 +5,9 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import '../css/register.css';
 import { makeStyles } from '@mui/styles';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const useStyles = makeStyles({
   selectBackground: {
     background: 'white',
@@ -70,11 +73,13 @@ const Profil = () => {
         setAge(userData.age);
         setGender(userData.gender);
       } else {
-        alert('Failed to fetch user data.');
+        const notify = () => toast("Nie udało się pobrać danych użytkownika");
+        notify();
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      alert('Failed to fetch user data.');
+      const notify = () => toast("Nie udało się pobrać danych użytkownika");
+      notify();
     }
   };
     
@@ -83,40 +88,33 @@ const Profil = () => {
 
     const validationErrors = [];
 
-    if (!login) {
-      validationErrors.push('Login field is required.');
-    }
-
-    if (!email || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-      validationErrors.push('Email field is invalid.');
-    }
-
     if (!firstName || !/^[A-Za-z]+$/.test(firstName)) {
-      validationErrors.push('First name field is invalid. Only letters are allowed.');
+      validationErrors.push('Niepoprawne imię. Imię może się składać tylko z liter.\n');
     }
 
     if (!lastName || !/^[A-Za-z]+$/.test(lastName)) {
-      validationErrors.push('Last name field is invalid. Only letters are allowed.');
+      validationErrors.push('Niepoprawne nazwisko. Nazwisko może się składać tylko z liter.\n');
     }
 
     if (isNaN(age)) {
-      validationErrors.push('Age field is invalid. Must be a number.');
+      validationErrors.push('Niepoprawny wiek. Wiek musi być liczbą.\n');
     }
 
     if (!/^[0-9]+(\.[0-9]+)?$/.test(weight)) {
-      validationErrors.push('Weight field is invalid. Must be a number.');
+      validationErrors.push('Niepoprawna waga. Waga musi być liczbą.\n');
     }
 
     if (!/^[0-9]+(\.[0-9]+)?$/.test(height)) {
-      validationErrors.push('Height field is invalid. Must be a number.');
+      validationErrors.push('Niepoprawny wiek. Wiek musi być liczbą.\n');
     }
 
     if (!/^[MK]$/.test(gender)) {
-      validationErrors.push('Gender field is invalid. Must be "M" or "K".');
+      validationErrors.push('Niepoprawna płeć. Płeć musi być "M" lub "K".\n');
     }
 
     if (validationErrors.length > 0) {
-      alert('Validation errors:\n' + validationErrors.join('\n'));
+      const notify = () => toast(validationErrors.join('\n'));
+      notify();
       return;
     }
 
@@ -139,35 +137,44 @@ const Profil = () => {
       );
 
       if (response.status === 200) {
-        alert('User data saved successfully.');
+        const notify = () => toast("Dane zapisane pomyślnie");
+        notify();
       } else {
-        alert('Failed to save user data.');
+        const notify = () => toast("Nie udało się zapisać danych");
+        notify();
       }
     } catch (error) {
       console.error('Error saving user data:', error);
-      alert('Failed to save user data.');
+      const notify = () => toast("Nie udało się zapisać danych");
+      notify();
     }
   };
 
-  const deleteUser = async() => {
+  const deleteUser = async () => {
+    const userConfirmed = window.confirm('Czy na pewno chcesz usunąć swoje konto?');
+  
+    if (userConfirmed) {
       try {
         const response = await axios.delete(deleteUserUrl, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });              
-
-      if (response.status === 200) {
-        Cookies.remove('session_data');
-        navigate('/');
-      } else {
-        alert('Failed to delete user data.');
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        if (response.status === 200) {
+          Cookies.remove('session_data');
+          navigate('/');
+        } else {
+          const notify = () => toast("Nie udało się usunąć danych użytkownika.");
+          notify();
+        }
+      } catch (error) {
+        console.error('Błąd podczas usuwania danych użytkownika:', error);
+        const notify = () => toast("Nie udało się usunąć danych użytkownika.");
+        notify();
       }
-    } catch (error) {
-      console.error('Error deleting user data:', error);
-      alert('Failed to delete user data.');
     }
-  }
+  };
 
   useEffect(() => {
       const sessionData = getCookie('session_data');
@@ -212,6 +219,7 @@ const Profil = () => {
                     margin="normal"
                     value={firstName || ''}
                     onChange={(e) => setFirstName(e.target.value)}
+                    placeholder='Imię'
                     InputProps={{
                     style: {
                       background: 'white',
@@ -227,6 +235,7 @@ const Profil = () => {
                 <TextField
                     fullWidth
                     margin="normal"
+                    placeholder='Nazwisko'
                     value={lastName || ''}
                     onChange={(e) => setLastName(e.target.value)}
                     InputProps={{
@@ -273,6 +282,7 @@ const Profil = () => {
                   fullWidth
                   margin="normal"
                   value={height || ''}
+                  placeholder='Wzrost'
                   onChange={(e) => setHeight(e.target.value)}
                   InputProps={{
                   style: {
@@ -290,6 +300,7 @@ const Profil = () => {
                   fullWidth
                   margin="normal"
                   value={weight || ''}
+                  placeholder='Waga'
                   onChange={(e) => setWeight(e.target.value)}
                   InputProps={{
                   style: {
@@ -307,6 +318,7 @@ const Profil = () => {
                   fullWidth
                   margin="normal"
                   value={age || ''}
+                  placeholder='Wiek'
                   onChange={(e) => setAge(e.target.value)}
                   InputProps={{
                   style: {
@@ -331,7 +343,7 @@ const Profil = () => {
                 <MenuItem value="M">M</MenuItem>
               </Select>
             </Stack>
-            <Box display="flex" justifyContent="flex-end" spacing="2px">                        
+            <Box display="flex" justifyContent="flex-end" mt="0.5rem">                        
               <button  type="submit" className="registerButton" onClick={saveData}>
                   ZAPISZ DANE
               </button>

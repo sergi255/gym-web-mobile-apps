@@ -2,6 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Box, Grid, Typography, TextField, Stack, Select, MenuItem } from '@mui/material';
 import '../css/register.css';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { makeStyles } from '@mui/styles';
+const useStyles = makeStyles({
+  selectBackground: {
+    background: 'white',
+    borderRadius: '20px',
+    height: '20px'
+  },
+});
 
 const Exercise = () => {
     const [name, setName] = useState('');
@@ -9,6 +19,8 @@ const Exercise = () => {
     const [description, setDescription] = useState('');
     const [token, setToken] = useState('');
     const addExerciseUrl = `http://localhost:3001/exercises/addExercise`;
+
+    const classes = useStyles();
 
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
@@ -32,27 +44,32 @@ const Exercise = () => {
             });
 
             if (response.status === 200) {
-                alert('Exercise added successfully.');
+                const notify = () => toast("Ćwiczenie dodano pomyślnie");
+                notify();
+                setName('');
+                setPart('');
+                setDescription('');
             } 
             else {
-                alert('Failed to add exercise.');
+                const notify = () => toast("Nie udało się dodać ćwiczenia");
+                notify();
             }
 
         } catch (error) {
             if (error.response && error.response.status === 422) {
-                alert('Input data cannot be empty.');
+                const notify = () => toast("Dane nie mogą być puste");
+                notify();
             }
             else if(error.response && error.response.status === 409){
-                alert('Exercise already exists.');
+                const notify = () => toast("Ćwiczenie o podanej nazwie już istnieje");
+                notify();
             } 
             else {
                 console.error('Error:', error);
-                alert('Failed to add exercise. Please try again.');
+                const notify = () => toast("Nie udało się dodać ćwiczenia. Spróbuj ponownie");
+                notify();
             }
         }
-        setName('');
-        setPart('');
-        setDescription('');
     }
 
     useEffect(() => {
@@ -73,6 +90,7 @@ const Exercise = () => {
                             <TextField
                                 fullWidth
                                 margin="normal"
+                                placeholder='Nazwa'
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 InputProps={{
@@ -91,14 +109,7 @@ const Exercise = () => {
                                 fullWidth
                                 value={part}
                                 onChange={(e) => setPart(e.target.value)}
-                                inputProps={{
-                                    style: {
-                                        background: 'white',
-                                        border: 'none',
-                                        height: '40px',
-                                        borderRadius: '20px',
-                                    },
-                                }}
+                                classes={{ select: classes.selectBackground }}
                             >
                             <MenuItem value="1">Klatka piersiowa</MenuItem>
                             <MenuItem value="2">Plecy</MenuItem>
@@ -114,16 +125,18 @@ const Exercise = () => {
                             <Typography variant="h5" mr="20px" fontWeight="600">Opis</Typography>
                             <TextField
                                 fullWidth
+                                type="textarea"
                                 margin="normal"
+                                placeholder='Opis'
                                 value={description}
-                                onChange={(e)=>setDescription(e.target.value)}
+                                onChange={(e) => setDescription(e.target.value)}
                                 InputProps={{
-                                style: {
-                                    background: 'white',
-                                    border: 'none',
-                                    height: '150px',
-                                    borderRadius: '20px',
-                                },
+                                    style: {
+                                        background: 'white',
+                                        border: 'none',
+                                        height: '40px',
+                                        borderRadius: '20px',
+                                    },
                                 }}
                             />
                         </Stack>

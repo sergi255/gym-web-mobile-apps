@@ -18,6 +18,8 @@ import {
 } from '@mui/material';
 import '../css/register.css';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Training = () => {
     const [name, setName] = useState('');
@@ -58,7 +60,8 @@ const Training = () => {
             });
 
             if (response.status === 200) {
-                alert('Training added successfully.');
+                const notify = () => toast("Trening dodano pomyślnie");
+                notify();
                 setName('');
                 setDate('');
                 setBeginTime('');
@@ -66,16 +69,20 @@ const Training = () => {
                 setDescription('');
                 setSelectedExercises([]);
             } else {
-                alert('Failed to add training.');
+                const notify = () => toast("Nie udało się dodać treningu");
+                notify();
             }
         } catch (error) {
             if (error.response && error.response.status === 422) {
-                alert('Input data cannot be empty.');
+                const notify = () => toast("Dane nie mogą być puste");
+                notify();
             } else if (error.response && error.response.status === 409) {
-                alert('Training already exists.');
+                const notify = () => toast("Trening o podanej nazwie już istnieje");
+                notify();
             } else {
                 console.error('Error:', error);
-                alert('Failed to add training. Please try again.');
+                const notify = () => toast("Nie udało się dodać treningu. Spróbuj ponownie");
+                notify();
             }
         }
     };
@@ -111,11 +118,13 @@ const Training = () => {
             if (response.status === 200) {
                 setExerciseList(response.data);
             } else {
-                alert('Failed to fetch exercise data.');
+                const notify = () => toast("Nie udało się pobrać ćwiczeń");
+                notify();
             }
         } catch (error) {
             console.error('Error fetching exercise data:', error);
-            alert('Failed to fetch exercise data.');
+            const notify = () => toast("Nie udało się pobrać ćwiczeń");
+            notify();
         }
     };
 
@@ -145,6 +154,7 @@ const Training = () => {
                                     <Typography variant="h5" mr="20px" fontWeight="600">NAZWA</Typography>
                                     <TextField
                                         fullWidth
+                                        placeholder='Nazwa'
                                         margin="normal"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
@@ -218,6 +228,7 @@ const Training = () => {
                                         fullWidth
                                         type="textarea"
                                         margin="normal"
+                                        placeholder='Opis'
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
                                         InputProps={{

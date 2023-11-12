@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Box, Grid, Typography, TextField, Stack, Select, MenuItem } from '@mui/material';
 import '../css/register.css';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function mapPartNameToNumber(partName) {
     switch (partName) {
@@ -58,17 +60,19 @@ const EditExercise = () => {
                 setName(exerciseData.exercise_name);
                 setPart(partNumber);
                 setDescription(exerciseData.description);
-                console.log('exerciseData received:', exerciseData);
             } 
             else if (response.status === 403) {
-                alert('You are not authorized to view this page.');
+                const notify = () => toast("Brak autoryzacji");
+                notify();
             }
             else {
-                alert('Failed to fetch exercise data.');
+                const notify = () => toast("Nie udało się pobrać ćwiczenia");
+                notify();
             }
         } catch (error) {
             console.error('Error fetching exercise data:', error);
-            alert('Failed to fetch exercise data.');
+            const notify = () => toast("Nie udało się pobrać ćwiczenia");
+            notify();
         }
     };
 
@@ -100,22 +104,27 @@ const EditExercise = () => {
             });
 
             if (response.status === 200) {
-                alert('Exercise updated successfully.');
+                const notify = () => toast("Ćwiczenie zaktualizowane pomyślnie");
+                notify();
             }
             else {
-                alert('Failed to update exercise.');
+                const notify = () => toast("Nie udało się zaktualizować ćwiczenia");
+                notify();
             }
         }
         catch (error) {
             if (error.response && error.response.status === 422) {
-                alert('Input data cannot be empty.');
+                const notify = () => toast("Dane nie mogą być puste");
+                notify();
             }
             else if (error.response && error.response.status === 409) {
-                alert('Exercise already exists.');
+                const notify = () => toast("Ćwiczenie o podanej nazwie już istnieje");
+                notify();
             }
             else {
                 console.error('Error:', error);
-                alert('Failed to update exercise. Please try again.');
+                const notify = () => toast("Nie udało się zaktualizować ćwiczenia. Spróbuj ponownie");
+                notify();
             }
         }
     };

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Box, Grid, Typography, TextField, Stack } from '@mui/material';
 import '../css/register.css';
 import axios from 'axios'
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
     const [email, setEmail] = useState('');
@@ -11,10 +13,15 @@ const Register = () => {
 
     const handleRegister= async (e) => {
         e.preventDefault();
-        if (!email || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-            alert('Email field is invalid.');
-            return;
+        if(!email || !login || !password){
+            const notify = () => toast("Dane rejestracji nie mogą być puste");
+            notify();
+        }
+        else if (!email || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+            const notify = () => toast("Niepoprawny adres email");
+            notify();
           }
+        else{
         try {
             const response = await axios.post(apiUrl, {
                 email: email,
@@ -27,27 +34,33 @@ const Register = () => {
             });
 
             if (response.status === 200) {
-                alert('User created successfully.');
+                const notify = () => toast("Użytkownik utworzony pomyślnie");
+                notify();
             } 
             else {
-                alert('Failed to register.');
+                const notify = () => toast("Rejestracja nieudane, spróbuj ponownie");
+                notify();
             }
 
         } catch (error) {
             if (error.response && error.response.status === 422) {
-                alert('Input data cannot be empty.');
+                const notify = () => toast("Dane rejestracji nie mogą być puste");
+                notify();
             }
             else if(error.response && error.response.status === 409){
-                alert('User already exists.');
+                const notify = () => toast("Użytkownik o podanym adresie e-mail już istnieje");
+                notify();
             } 
             else {
                 console.error('Error:', error);
-                alert('Failed to register. Please try again.');
+                const notify = () => toast("Rejestracja nieudane, spróbuj ponownie");
+                notify();
             }
         }
         setEmail('');
         setLogin('');
         setPassword('');
+        }
     };
 
     return (

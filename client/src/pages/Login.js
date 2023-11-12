@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import '../css/login.css';
 import { useAuth } from '../components/AuthProvider';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -24,21 +26,27 @@ const Login = () => {
                 navigate('/');
             } 
             else {
-                alert('Failed to log in. Please try again.');
+                const notify = () => toast("Logowanie nieudane, spróbuj ponownie");
+                notify();
+                
             }
         } catch (error) {
             if (error.response && error.response.status === 422) {
-                alert('Input data cannot be empty.');
+                const notify = () => toast("Dane logowania nie mogą być puste");
+                notify();
             }
             else if(error.response && error.response.status === 404){
-                alert('User not found.');
+                const notify = () => toast("Nie znaleziono użytkownika");
+                notify();
             }
             else if(error.response && error.response.status === 401){
-                alert('Invalid password.');
+                const notify = () => toast("Podano nieprawidłowe dane logowania");
+                notify();
             } 
             else{
                 console.error('Error:', error);
-                alert('Failed to log in. Please try again.');
+                const notify = () => toast("Logowanie nieudane, spróbuj ponownie");
+                notify();
             }
         }
         setLogin('');

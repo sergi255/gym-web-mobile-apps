@@ -1,6 +1,7 @@
 // CSS
 import './css/App.css';
 
+
 // Pages
 import Home from './pages/Home'
 import Login from './pages/Login'
@@ -23,6 +24,8 @@ import { useAuth } from './components/AuthProvider';
 // Libraries
 import { Box } from '@mui/material'
 import { Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Color palette
 //#6422b8 - fioletowy
@@ -49,6 +52,7 @@ function App() {
           <Route path="/stats" element={<Stats/>}/>
           <Route path="/profile" element={<Profil/>}/>
         </Routes>
+        <ToastContainer />
     </Box>
   );
 }
