@@ -8,6 +8,7 @@ import {
 import axios from 'axios';
 import ExercisesTable from '../components/ExercisesTable'
 import '../css/myExercises.css';
+import { Link, useHistory } from 'react-router-dom';
 
 const MyExercises = () => {
   const [token, setToken] = useState();
@@ -105,6 +106,10 @@ const MyExercises = () => {
       getCategoriesData();
     }
   }, [token]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [selectedCategory]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

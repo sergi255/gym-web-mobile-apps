@@ -322,7 +322,6 @@ app.get('/exercises/getUserExercises', verifyToken, async (req, res) => {
 
 app.get('/exercises/getExercises', verifyToken, async (req, res) => {
   try{
-    const userId = req.user.userId;
     const query = `
       SELECT
         exercise.id,
@@ -503,6 +502,50 @@ app.get('/exercises/browse', verifyToken, async (req, res) => {
   }
   catch (error) {
     console.error('Error browsing exercises');
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.get('/exercises/edit/:id', verifyToken, async (req, res) => {
+  const exerciseId = req.params.id;
+  try {
+    const query = `
+      SELECT
+        exercise.id,
+        exercise.name AS exercise_name,
+        exercise.description,
+        category.name AS category_name
+      FROM exercise
+      JOIN category ON exercise.category_id = category.id
+      WHERE exercise.id = $1
+    `;
+    const result = await client.query(query, [exerciseId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Exercise not found' });
+    }
+
+    res.status(200).json(result.rows[0]);
+    console.log(result.rows[0]);
+  } catch (error) {
+    console.log(error, "Error getting exercise");
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.put('/exercises/edit/:id', verifyToken, async (req, res) => {
+  try{
+  const exerciseId = req.params.id;
+  const {name, description, part} = req.body;
+  
+    const updateQuery = `
+    UPDATE exercise
+    SET name = $1, description = $2, category_id = $3
+    WHERE id = $4
+  `;
+  await client.query(updateQuery, [name, description, part, exerciseId]);
+  res.status(200).json({ message: 'Exercise updated successfully' });
+  } catch (error) {
+    console.log(error, "Error updating exercise");
     res.status(500).json({ message: 'Internal server error' });
   }
 });

@@ -19,6 +19,7 @@ const BrowseExercises = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [categories, setCategories] = useState([]);
+  
   const getExercisesUrl = 'http://localhost:3001/exercises/getExercises';
   const getCategoriesUrl = 'http://localhost:3001/categories';
 
@@ -69,7 +70,7 @@ const BrowseExercises = () => {
       alert('Failed to fetch categories data.');
     }
   };
-    
+
 
   useEffect(() => {
     const sessionData = getCookie('session_data');
@@ -77,7 +78,6 @@ const BrowseExercises = () => {
       setToken(sessionData);
     }
     if (token) {
-      console.log(categories);
       getExerciseData();
       getCategoriesData();
     }
@@ -101,10 +101,11 @@ const BrowseExercises = () => {
     [page, rowsPerPage, exercises],
   );
 
-
   useEffect(() => {
-  }, []
-  )
+    setPage(0);
+  }, [selectedCategory]);
+
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -181,7 +182,7 @@ const BrowseExercises = () => {
       </Grid>
     </Box>
   );
-          }
-          
+}
+
 
 export default BrowseExercises;
