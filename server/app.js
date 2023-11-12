@@ -306,7 +306,6 @@ app.get('/exercises/getUserExercises', verifyToken, async (req, res) => {
       JOIN category ON exercise.category_id = category.id
       WHERE exercise.user_id = $1
     `;
-
     const result = await client.query(query, [userId]);
 
     if (result.rows.length === 0) {
@@ -509,6 +508,7 @@ app.get('/exercises/browse', verifyToken, async (req, res) => {
 
 app.get('/exercises/edit/:id', verifyToken, async (req, res) => {
   const exerciseId = req.params.id;
+  const userId = req.user.userId;
   try {
     const query = `
       SELECT
@@ -518,17 +518,90 @@ app.get('/exercises/edit/:id', verifyToken, async (req, res) => {
         category.name AS category_name
       FROM exercise
       JOIN category ON exercise.category_id = category.id
-      WHERE exercise.id = $1
+      WHERE exercise.id = $1 AND exercise.user_id = $2
     `;
-    const result = await client.query(query, [exerciseId]);
+    const result = await client.query(query, [exerciseId, userId]);
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Exercise not found' });
+      return res.status(404).json({ message: 'Exercise not found for user' });
     }
-
     res.status(200).json(result.rows[0]);
     console.log(result.rows[0]);
   } catch (error) {
     console.log(error, "Error getting exercise");
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.put('/trainings/edit/:id', verifyToken, async (req, res) => {
+  try {
+    const trainingId = req.params.id;
+    const { name, date, beginTime, endTime, description, selectedExercises } = req.body;
+    const userId = req.user.userId;
+    const updateTrainingQuery = `
+      UPDATE training
+      SET name = $1, date = $2, begin_time = $3, end_time = $4, description = $5
+      WHERE id = $6
+    `;
+    await client.query(updateTrainingQuery, [name, date, beginTime, endTime, description, trainingId]);
+
+    const deleteTrainingExerciseQuery = `DELETE FROM "training_exercise" WHERE training_id = $1`;
+    await client.query(deleteTrainingExerciseQuery, [trainingId]);
+    console.log(selectedExercises);
+    
+    for (const exercise of selectedExercises) {
+      const { id, set_amount, rep_amount } = exercise;
+
+      const insertTrainingExerciseQuery = `
+        INSERT INTO training_exercise (training_id, exercise_id, set_amount, rep_amount)
+        VALUES ($1, $2, $3, $4)
+      `;
+      await client.query(insertTrainingExerciseQuery, [trainingId, id, set_amount, rep_amount]);
+    }
+    res.status(200).json({ message: 'Training updated successfully' });
+  } catch (error) {
+    console.error('Error updating training:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.get('/trainings/edit/:id', verifyToken, async (req, res) => {
+  const trainingId = req.params.id;
+  console.log('Training ID:', trainingId);
+  try {
+    const query = `
+      SELECT
+      training.id,
+      training.name AS training_name,
+      training.date,
+      training.begin_time,
+      training.end_time,
+      training.description AS training_description,
+      (
+        SELECT json_agg(
+          json_build_object(
+            'id', e.id,
+            'exercise_name', e.name,
+            'description', e.description,
+            'set_amount', te.set_amount,
+            'rep_amount', te.rep_amount
+          )
+        )
+        FROM training_exercise te
+        LEFT JOIN exercise e ON te.exercise_id = e.id
+        WHERE te.training_id = training.id
+      ) AS exercises
+    FROM training
+    WHERE training.id = $1
+    `;
+    const result = await client.query(query, [trainingId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Training not found' });
+    }
+    res.status(200).json(result.rows[0]);
+    console.log(result.rows[0]);
+    console.log("Training fetched successfully")
+  } catch (error) {
+    console.log(error, "Error getting training");
     res.status(500).json({ message: 'Internal server error' });
   }
 });
