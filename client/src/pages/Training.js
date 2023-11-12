@@ -16,7 +16,9 @@ import {
     TableBody,
     Button,
 } from '@mui/material';
-import '../css/register.css';
+
+import "../css/register.css";
+
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -257,16 +259,18 @@ const Training = () => {
                                             </MenuItem>
                                         ))}
                                     </Select>
-                                    <Button
+                                    <Box display="flex" justifyContent="flex-end" marginLeft="25px">
+                                    <button
                                         variant="contained"
                                         className="registerButton"
                                         onClick={handleExerciseChange}
                                         disabled={!selectedExerciseId || selectedExercises.find((e) => e.id === selectedExerciseId)}
                                     >
-                                        Dodaj ćwiczenie do treningu
-                                    </Button>
+                                        DODAJ DO TRENINGU
+                                    </button>
+                                    </Box>
                                 </Stack>
-                                <Box display="flex" justifyContent="flex-end">
+                                <Box display="flex" justifyContent="flex-end" marginTop="25px">
                                     <button type="submit" className="registerButton" onClick={handleAdd}>
                                         DODAJ TRENING
                                     </button>
@@ -281,29 +285,56 @@ const Training = () => {
                     <Box className="formBox">
                         <Stack direction="column">
                             <Typography variant="h5" mr="20px" fontWeight="600">LISTA WYBRANYCH ĆWICZEŃ</Typography>
-                            <TableContainer component={Paper}>
+                            <TableContainer component={Paper} sx={{
+                                backgroundColor: "#6422b8",
+                            }}>
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell>ID</TableCell>
-                                            <TableCell>Nazwa ćwiczenia</TableCell>
-                                            <TableCell>Opis</TableCell>
-                                            <TableCell>Serie</TableCell>
-                                            <TableCell>Powtórzenia</TableCell>
-                                            <TableCell>Akcja</TableCell>
+                                            <TableCell sx={{
+                                                color: "#ffd93b",
+                                                fontWeight: "bold"
+                                            }}>ID</TableCell>
+                                            <TableCell sx={{
+                                                color: "#ffd93b",
+                                                fontWeight: "bold"
+                                            }}>Nazwa</TableCell>
+                                            <TableCell sx={{
+                                                color: "#ffd93b",
+                                                fontWeight: "bold"
+                                            }}>Opis</TableCell>
+                                            <TableCell sx={{
+                                                color: "#ffd93b",
+                                                fontWeight: "bold"
+                                            }}>Ilość serii</TableCell>
+                                            <TableCell sx={{
+                                                color: "#ffd93b",
+                                                fontWeight: "bold"
+                                            }}>Ilość powtórzeń</TableCell>
+                                            <TableCell sx={{
+                                                color: "#ffd93b",
+                                                fontWeight: "bold"
+                                            }}>Usuń</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {selectedExercises.map((exercise) => (
                                             <TableRow key={exercise.id}>
-                                                <TableCell>{exercise.id}</TableCell>
-                                                <TableCell>{exercise.exercise_name}</TableCell>
-                                                <TableCell>{exercise.description}</TableCell>
-                                                {/* Pola select dla set_amount i rep_amount */}
-                                                <TableCell>
+                                                <TableCell sx={{
+                                                    color: "#ffd93b"
+                                                }}>{exercise.id}</TableCell>
+                                                <TableCell sx={{
+                                                    color: "#ffd93b"
+                                                }}>{exercise.exercise_name}</TableCell>
+                                                <TableCell sx={{
+                                                    color: "#ffd93b"
+                                                }}>{exercise.description}</TableCell>
+                                                <TableCell sx={{
+                                                    color: "#ffd93b"
+                                                }}>
                                                     <Select
                                                         fullWidth
-                                                        value={exercise.set_amount || 1} 
+                                                        value={exercise.set_amount || 1}
                                                         onChange={(e) => {
                                                             exercise.set_amount = e.target.value;
                                                             setSelectedExercises([...selectedExercises]);
@@ -316,11 +347,12 @@ const Training = () => {
                                                         ))}
                                                     </Select>
                                                 </TableCell>
-
-                                                <TableCell>
+                                                <TableCell sx={{
+                                                    color: "#ffd93b"
+                                                }}>
                                                     <Select
                                                         fullWidth
-                                                        value={exercise.rep_amount || 1}  
+                                                        value={exercise.rep_amount || 1}
                                                         onChange={(e) => {
                                                             exercise.rep_amount = e.target.value;
                                                             setSelectedExercises([...selectedExercises]);
@@ -333,22 +365,19 @@ const Training = () => {
                                                         ))}
                                                     </Select>
                                                 </TableCell>
-
                                                 <TableCell>
-                                                    <Button
-                                                        variant="contained"
-                                                        color="secondary"
+                                                    <button
+                                                        className="deleteButton"
                                                         onClick={() => removeExercise(exercise.id)}
                                                     >
                                                         Usuń
-                                                    </Button>
+                                                    </button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-
                         </Stack>
                     </Box>
                 </Grid>

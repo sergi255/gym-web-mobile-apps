@@ -4,15 +4,6 @@ import {
   dateFnsLocalizer,
   Views,
 } from "react-big-calendar";
-import {
-  Paper,
-  Table,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-} from '@mui/material';
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import parseISO from "date-fns/parseISO";
 import startOfWeek from "date-fns/startOfWeek";
@@ -20,6 +11,9 @@ import getDay from "date-fns/getDay";
 import format from "date-fns/format";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
+import { Box, Grid, Stack, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
+
+import "../css/training.css";
 
 const locales = {
   "en-US": require("date-fns/locale/en-US"),
@@ -55,21 +49,21 @@ function Kalendarz() {
         const beginTimeParts = training.begin_time.split(":");
         startTime.setHours(Number(beginTimeParts[0]));
         startTime.setMinutes(Number(beginTimeParts[1]));
-  
+
         const endTime = parseISO(training.date);
         const endTimeParts = training.end_time.split(":");
         endTime.setHours(Number(endTimeParts[0]));
         endTime.setMinutes(Number(endTimeParts[1]));
-  
+
         if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
           console.error("Invalid time value in training:", training);
           return null;
         }
-  
-        // Sprawdzamy, czy pole `exercises` istnieje i czy nie jest puste
+
         const exercises = training.exercises || [];
-  
+
         return {
+          id: training.training_id,
           title: training.training_name,
           start: startTime,
           end: endTime,
@@ -82,7 +76,7 @@ function Kalendarz() {
       }
     }).filter(Boolean);
   };
-  
+
 
   const getTrainings = async () => {
     try {
@@ -123,6 +117,10 @@ function Kalendarz() {
     console.log(event); // Dodaj tę linię, aby wyświetlić obiekt w konsoli
   };
 
+  function handleButtonClick() {
+    window.location.href = `/trainings/edit/${selectedTraining.id}`;
+  }
+
   return (
     <div className="App">
       <h1>Calendar</h1>
@@ -136,34 +134,153 @@ function Kalendarz() {
         defaultView={Views.MONTH}
         onSelectEvent={event => setSelectedTraining(event)}
       />
-     {selectedTraining && (
-  <div>
-    <h2>Selected Training</h2>
-    <p>Name: {selectedTraining.title}</p>
-    <p>Date: {format(selectedTraining.start, "yyyy-MM-dd")}</p>
-    <p>Begin Time: {format(selectedTraining.start, "HH:mm")}</p>
-    <p>End Time: {format(selectedTraining.end, "HH:mm")}</p>
-    <p>Description: {selectedTraining.description}</p>
-    <h3>Exercises:</h3>
-    <ul>
-      {selectedTraining.exercises.map((exercise) => (
-        <li key={exercise.exercise_id}>
-          ID ćwiczenia: {exercise.exercise_id}
-          <br />
-          Ćwiczenie: {exercise.exercise_name}
-          <br />
-          Opis: {exercise.exercise_description}
-          <br />
-          Liczba serii: {exercise.set_amount} {/* Dodane */}
-          <br />
-          Liczba powtórzeń: {exercise.rep_amount} {/* Dodane */}
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
+      {selectedTraining && (
+        <Stack direction="row" marginTop="2%">
+          <Box width="50%">
+            <Grid container className="stack">
+              <Box className="formBox">
+                <Stack direction="column">
+                  <Box display="flex" justifyContent="center">
+                    <Box className="statsHeader">
+                      Szczegóły
+                    </Box>
+                  </Box>
+                  <Box marginTop="4">
+                    <Box>
+                      <TableContainer component={Paper} sx={{
+                        backgroundColor: "#6422b8",
+                      }}>
+                        <Table>
+                          <TableBody>
+                            <TableRow>
+                              <TableCell sx={{
+                                color: "#ffd93b",
+                                fontWeight: "bold"
+                              }}>Nazwa</TableCell>
+                              <TableCell sx={{
+                                color: "#ffd93b"
+                              }}>{selectedTraining.title}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell sx={{
+                                color: "#ffd93b",
+                                fontWeight: "bold"
+                              }}>Opis</TableCell>
+                              <TableCell sx={{
+                                color: "#ffd93b"
+                              }}>{selectedTraining.description}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell sx={{
+                                color: "#ffd93b",
+                                fontWeight: "bold"
+                              }}>Data</TableCell>
+                              <TableCell sx={{
+                                color: "#ffd93b"
+                              }}>{selectedTraining.start.toLocaleDateString()}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell sx={{
+                                color: "#ffd93b",
+                                fontWeight: "bold"
+                              }}>Czas rozpoczęcia</TableCell>
+                              <TableCell sx={{
+                                color: "#ffd93b"
+                              }}>{selectedTraining.start.toLocaleTimeString()}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell sx={{
+                                color: "#ffd93b",
+                                fontWeight: "bold"
+                              }}>Czas zakończenia</TableCell>
+                              <TableCell sx={{
+                                color: "#ffd93b"
+                              }}>{selectedTraining.end.toLocaleTimeString()}</TableCell>
+                            </TableRow>
+
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                      <Box display="flex" justifyContent="flex-end" marginTop="20px">
+                        <button type="submit" className="registerButton" onClick={handleButtonClick}>
+                          Edytuj trening
+                        </button>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Stack>
+              </Box>
+            </Grid>
+          </Box>
+          <Box width="50%">
+            <Grid container className="stack">
+              <Box className="formBox">
+                <Stack direction="column">
+                  <Box display="flex" justifyContent="center">
+                    <Box className="statsHeader">
+                      Ćwiczenia
+                    </Box>
+                  </Box>
+                  <Box marginTop="4">
+                    <Box>
+                      <TableContainer component={Paper} sx={{
+                        backgroundColor: "#6422b8",
+                      }}>
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell sx={{
+                                color: "#ffd93b",
+                                fontWeight: "bold"
+                              }}>Nazwa</TableCell>
+                              <TableCell sx={{
+                                color: "#ffd93b",
+                                fontWeight: "bold"
+                              }}>Opis</TableCell>
+                              <TableCell sx={{
+                                color: "#ffd93b",
+                                fontWeight: "bold"
+                              }}>Ilość serii</TableCell>
+                              <TableCell sx={{
+                                color: "#ffd93b",
+                                fontWeight: "bold"
+                              }}>Ilość powtórzeń</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {selectedTraining.exercises.map((exercise) => (
+                              <TableRow key={exercise.exercise_id}>
+                                <TableCell sx={{
+                                  color: "#ffd93b"
+                                }}>{exercise.exercise_name}</TableCell>
+                                <TableCell sx={{
+                                  color: "#ffd93b"
+                                }}>{exercise.exercise_description}</TableCell>
+                                <TableCell sx={{
+                                  color: "#ffd93b"
+                                }}>{exercise.set_amount}</TableCell>
+                                <TableCell sx={{
+                                  color: "#ffd93b"
+                                }}>{exercise.rep_amount}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </Box>
+                  </Box>
+                </Stack>
+              </Box>
+            </Grid>
+          </Box>
+        </Stack>
+
+
+
+
+      )}
     </div>
-  );  
+  );
 }
 
 export default Kalendarz;
