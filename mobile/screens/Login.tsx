@@ -3,10 +3,9 @@ import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from '../styles/styles';
 import { useAuth } from '../app/context/AuthContext';
-
+import Toast from 'react-native-toast-message';
 
 const Login = () => {
-  const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { onLogin } = useAuth();
@@ -15,10 +14,12 @@ const Login = () => {
     const result = await onLogin!(email, password);
     
     if (result && result.error) {
-      alert(result.msg);
+      Toast.show({
+          type: 'error',
+          text1: 'Błąd logowania.',
+        });      
     }
   }
-
   return (
     <View>
       <View style={styles.container}>
@@ -40,9 +41,6 @@ const Login = () => {
         />
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Zaloguj się</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={ () => { navigation.navigate('Register')} }>
-          <Text style={styles.buttonText}>Nie masz konta? Zarejestruj się</Text>
         </TouchableOpacity>
       </View>
     </View>

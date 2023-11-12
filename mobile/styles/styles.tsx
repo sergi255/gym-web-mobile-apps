@@ -35,10 +35,11 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
     paddingLeft: 8,
   },
+  pickerInput: {
+    width: '100%',
+  },
   pickerItem: {
     backgroundColor: '#6422b8',
-    borderColor: 'gray',
-    borderWidth: 1,
   },
   button: {
     width: '80%',
@@ -48,6 +49,19 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 16,
     borderRadius: 8,
+  },
+  actionButton: {
+    width: '200%',
+    height: 30,
+    paddingTop: 3,
+    marginRight: 3,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  actionButtonView: {
+    marginRight: 30,
   },
   buttonText: {
     fontSize: 18,
@@ -95,11 +109,15 @@ export const styles = StyleSheet.create({
   },
   exerciseItem: {
     backgroundColor: '#6422b8',
-    padding: 16,
+    padding: 12,
     marginTop: 12,
     borderRadius: 8,
     flexDirection: 'row',
     width: '100%',
-    justifyContent: 'space-around'
+    justifyContent: 'space-evenly'
   },
+  column: {
+    flex: 1,
+    alignItems: 'center'
+  },  
 });
