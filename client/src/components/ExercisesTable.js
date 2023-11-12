@@ -19,7 +19,7 @@ import {
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit'; // Import ikony edycji
+import EditIcon from '@mui/icons-material/Edit';
 import { visuallyHidden } from '@mui/utils';
 
 function ExercisesTable(props) {
@@ -39,7 +39,7 @@ function ExercisesTable(props) {
     handleSelectAllClick,
     handleClick,
     handleRequestSort,
-    handleEditExercises, 
+    handleEditExercises,
   } = props;
 
   const headCells = [
@@ -62,17 +62,18 @@ function ExercisesTable(props) {
       label: 'Kategoria',
     },
   ];
-  
+
   const filteredExercises = exercises.filter((exercise) =>
     selectedCategory === 'all' ? true : exercise.category_name === selectedCategory
   );
+
   function EnhancedTableHead(props) {
     const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
-  
+
     const createSortHandler = (property) => (event) => {
       onRequestSort(event, property);
     };
-  
+
     return (
       <TableHead>
         <TableRow>
@@ -116,8 +117,8 @@ function ExercisesTable(props) {
       </TableHead>
     );
   }
-  
-  
+
+
   EnhancedTableHead.propTypes = {
     numSelected: PropTypes.number.isRequired,
     onRequestSort: PropTypes.func.isRequired,
@@ -129,7 +130,7 @@ function ExercisesTable(props) {
 
   function EnhancedTableToolbar(props) {
     const { numSelected } = props;
-  
+
     return (
       <Toolbar
         sx={{
@@ -160,7 +161,7 @@ function ExercisesTable(props) {
             Moje ćwiczenia
           </Typography>
         )}
-  
+
         {numSelected > 0 && (
           <Tooltip title="Usuń">
             <IconButton onClick={handleDeleteExercises}>
@@ -170,83 +171,85 @@ function ExercisesTable(props) {
         )}
         {numSelected === 1 && (
           <Tooltip title="Edytuj">
-            <IconButton onClick={handleEditExercises}>
-              <EditIcon />
-            </IconButton>
+            <Link to={`/exercises/edit/${selected[0]}`}>
+              <IconButton onClick={handleEditExercises}>
+                <EditIcon />
+              </IconButton>
+            </Link>
           </Tooltip>
         )}
       </Toolbar>
     );
-  }  
-  
+  }
+
   EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
   };
-  
+
   return (
     <Box>
       <EnhancedTableToolbar numSelected={selected.length} />
-          <TableContainer>
-            <Table
-              sx={{ minWidth: 750 }}
-              aria-labelledby="tableTitle"
-              size={dense ? 'small' : 'medium'}
-            >
+      <TableContainer>
+        <Table
+          sx={{ minWidth: 750 }}
+          aria-labelledby="tableTitle"
+          size={dense ? 'small' : 'medium'}
+        >
 
-              <EnhancedTableHead
-                numSelected={selected.length}
-                order={order}
-                orderBy={orderBy}
-                onSelectAllClick={handleSelectAllClick}
-                onRequestSort={handleRequestSort}
-                rowCount={exercises.length}
-              />
+          <EnhancedTableHead
+            numSelected={selected.length}
+            order={order}
+            orderBy={orderBy}
+            onSelectAllClick={handleSelectAllClick}
+            onRequestSort={handleRequestSort}
+            rowCount={exercises.length}
+          />
 
-              <TableBody>
-                {filteredExercises.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-                  const isItemSelected = isSelected(row.id);
-                  const labelId = `enhanced-table-checkbox-${index}`;
+          <TableBody>
+            {filteredExercises.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+              const isItemSelected = isSelected(row.id);
+              const labelId = `enhanced-table-checkbox-${index}`;
 
-                  return (
-                    <TableRow
-                      hover
-                      onClick={(event) => handleClick(event, row.id)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={row.id}
-                      selected={isItemSelected}
-                      sx={{ cursor: 'pointer' }}
-                    >
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            'aria-labelledby': labelId,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell component="th" id={labelId} scope="row" padding="none">
-                        {row.exercise_name}
-                      </TableCell>
-                      <TableCell>{row.description}</TableCell>
-                      <TableCell align="right">{row.category_name}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={filteredExercises.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </TableContainer>
+              return (
+                <TableRow
+                  hover
+                  onClick={(event) => handleClick(event, row.id)}
+                  role="checkbox"
+                  aria-checked={isItemSelected}
+                  tabIndex={-1}
+                  key={row.id}
+                  selected={isItemSelected}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      color="primary"
+                      checked={isItemSelected}
+                      inputProps={{
+                        'aria-labelledby': labelId,
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell component="th" id={labelId} scope="row" padding="none">
+                    {row.exercise_name}
+                  </TableCell>
+                  <TableCell>{row.description}</TableCell>
+                  <TableCell align="right">{row.category_name}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={filteredExercises.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </TableContainer>
     </Box>
   );
 }

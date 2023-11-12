@@ -44,7 +44,6 @@ const EditExercise = () => {
         }
     };
 
-    // Wykonaj żądanie GET, aby pobrać dane ćwiczenia po załadowaniu komponentu
     const getExerciseData = async () => {
         try {
             const response = await axios.get(getExerciseUrl, {
