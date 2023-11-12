@@ -1,5 +1,5 @@
 import { AuthProvider } from './app/context/AuthContext';
-
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import { Layout } from './Layout';
 // TO RUN
 // create account on ngrok: https://ngrok.com/ and get your Authtoken from Your Authtoken page
@@ -14,10 +14,37 @@ import { Layout } from './Layout';
 // #ffd93b - rzułty
 // #ffffff - biały
 
+const toastConfig = {
+  success: (props: any) => (
+    <BaseToast
+      {...props}
+      style={{ backgroundColor: '#6422b8',
+        borderLeftColor: 'green' }}
+      text1Style={{
+        color: '#ffd93b'
+      }}
+    />
+  ),
+
+  error: (props: any) => (
+    <ErrorToast
+      {...props}
+      style={{ backgroundColor: '#6422b8',
+        borderLeftColor: 'red' }}
+      text1Style={{
+        color: '#ffd93b'
+      }}
+    />
+  ),
+};
+
 export default function App() {
   return (
-    <AuthProvider>
-      <Layout></Layout>
-    </AuthProvider>
+    <>
+      <AuthProvider>
+        <Layout></Layout>
+      </AuthProvider>
+      <Toast config={toastConfig}/>
+    </>
   );
 }

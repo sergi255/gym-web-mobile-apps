@@ -1,14 +1,13 @@
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { API_URL } from '../app/context/AuthContext';
 import { useAuth } from '../app/context/AuthContext';
-import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { styles } from '../styles/styles';
+import Toast from 'react-native-toast-message';
 
 export default function MyExercises() {
-  const navigation = useNavigation();
   const [exercises, setExercises] = useState([]);
   const { authState } = useAuth();
 
@@ -21,7 +20,10 @@ export default function MyExercises() {
       } else if (response.status === 404) {
         setExercises([]);
       } else {
-        alert('Failed to fetch exercise data.');
+        Toast.show({
+          type: 'error',
+          text1: 'Wystąpił błąd podczas pobierania ćwiczeń.',
+        });
       }
     } catch (error) {
       if(!error.status == undefined){
@@ -39,13 +41,23 @@ export default function MyExercises() {
       });
 
       if (response.status === 200) {
+        Toast.show({
+          type: 'success',
+          text1: 'Ćwiczenie zostało usunięte!',
+        });
         getExerciseData();
       } else {
-        alert('Failed to delete exercise data.');
+        Toast.show({
+          type: 'error',
+          text1: 'Wystąpił błąd podczas usuwania ćwiczenia.',
+        });
       }
     } catch (error) {
       console.error('Error deleting exercise data:', error);
-      alert('Failed to delete exercise data.');
+      Toast.show({
+        type: 'error',
+        text1: 'Wystąpił błąd podczas usuwania ćwiczenia.',
+      });
     }
   }
 
@@ -58,22 +70,24 @@ export default function MyExercises() {
       {exercises.length > 0 ? (
         <View>
           <View style={styles.exerciseItem}>
-            <Text style={styles.buttonText}>Nazwa</Text>
-            <Text style={styles.buttonText}>Opis</Text>
-            <Text style={styles.buttonText}>Kategoria</Text>
-            <Text style={styles.buttonText}>Akcja</Text>
+            <Text style={[styles.buttonText, styles.column]}>Nazwa</Text>
+            <Text style={[styles.buttonText, styles.column]}>Opis</Text>
+            <Text style={[styles.buttonText, styles.column]}>Kategoria</Text>
+            <Text style={[styles.buttonText]}>Akcja</Text>
           </View>
           <FlatList
             data={exercises}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <View style={styles.exerciseItem}>
-                <Text style={styles.buttonText}>{item.exercise_name}</Text>
-                <Text style={styles.buttonText}>{item.description}</Text>
-                <Text style={styles.buttonText}>{item.category_name}</Text>
-                <TouchableOpacity onPress={() => handleDelete(item.id)}>
-                  <Text>X</Text>
-                </TouchableOpacity>
+                <Text style={[styles.buttonText, styles.column]}>{item.exercise_name}</Text>
+                <Text style={[styles.buttonText, styles.column]}>{item.description}</Text>
+                <Text style={[styles.buttonText, styles.column]}>{item.category_name}</Text>
+                <View style={styles.actionButtonView}>
+                  <TouchableOpacity style={styles.actionButton} onPress={() => handleDelete(item.id)}>
+                    <Text style={[styles.buttonText, styles.column]}>X</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
           />
