@@ -8,7 +8,14 @@ import {
 import axios from 'axios';
 import ExercisesTable from '../components/BrowseExercisesTable'
 import '../css/myExercises.css';
-
+import { makeStyles } from '@mui/styles';
+const useStyles = makeStyles({
+  selectBackground: {
+    background: 'white',
+    borderRadius: '20px',
+    height: '20px'
+  },
+});
 const BrowseExercises = () => {
   const [token, setToken] = useState();
   const [exercises, setExercises] = useState([]);
@@ -19,7 +26,7 @@ const BrowseExercises = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [categories, setCategories] = useState([]);
-  
+  const classes = useStyles();
   const getExercisesUrl = 'http://localhost:3001/exercises/getExercises';
   const getCategoriesUrl = 'http://localhost:3001/categories';
 
@@ -144,6 +151,7 @@ const BrowseExercises = () => {
   return (
     <Box width="100%" marginTop="2%">
       <Grid container className="stack">
+        <Box className="exercisesTable" overflow="auto">
         <Box className="filters">
           <label htmlFor="category">Wybierz kategorię: </label>
           <Select
@@ -152,6 +160,7 @@ const BrowseExercises = () => {
               const newCategory = event.target.value;
               setSelectedCategory(newCategory);
             }}
+            classes={{ select: classes.selectBackground }}
           >
             <MenuItem value="all">Wszystkie</MenuItem>
             <MenuItem value="Klatka piersiowa">Klatka piersiowa</MenuItem>
@@ -164,7 +173,6 @@ const BrowseExercises = () => {
             <MenuItem value="Pośladki">Pośladki</MenuItem>
           </Select>
         </Box>
-        <Box className="exercisesTable" overflow="auto">
           <ExercisesTable
             exercises={exercises}
             selectedCategory={selectedCategory}

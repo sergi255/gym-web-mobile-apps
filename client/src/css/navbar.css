@@ -22,9 +22,13 @@
 }
 
 .fullLinkBox {
-    height: 7vh;
+    height: 8vh;
     color: #6422b8;
     background-color: #ffffff;
     align-items: center;
     justify-content: space-evenly;
+}
+
+.active {
+    text-decoration: underline;
 }

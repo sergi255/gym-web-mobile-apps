@@ -135,7 +135,7 @@ function Kalendarz() {
         onSelectEvent={event => setSelectedTraining(event)}
       />
       {selectedTraining && (
-        <Stack direction="row" marginTop="2%">
+        <Stack direction="row" marginTop="2%" marginBottom="3%">
           <Box width="50%">
             <Grid container className="stack">
               <Box className="formBox">
@@ -274,10 +274,6 @@ function Kalendarz() {
             </Grid>
           </Box>
         </Stack>
-
-
-
-
       )}
     </div>
   );

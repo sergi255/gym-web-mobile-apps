@@ -14,12 +14,20 @@ import {
     TableRow,
     TableCell,
     TableBody,
-    Button,
 } from '@mui/material';
 import '../css/register.css';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { makeStyles } from '@mui/styles';
+const useStyles = makeStyles({
+  selectBackground: {
+    background: 'white',
+    borderRadius: '20px',
+    height: '20px'
+  },
+});
+
 const EditTraining = () => {
     const [name, setName] = useState('');
     const [date, setDate] = useState('');
@@ -33,6 +41,7 @@ const EditTraining = () => {
     const trainingId = window.location.pathname.split('/')[3];
     const getTrainingUrl = `http://localhost:3001/trainings/edit/${trainingId}`;
     const updateTrainingUrl = `http://localhost:3001/trainings/edit/${trainingId}`;
+    const classes = useStyles();
 
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
@@ -137,7 +146,8 @@ const EditTraining = () => {
         setSelectedExercises(updatedExercises);
     };
 
-    const handleExerciseChange = () => {
+    const handleExerciseChange = (e) => {
+      e.preventDefault();
         if (selectedExerciseId) {
             const exercise = exerciseList.find((ex) => ex.id === selectedExerciseId);
             if (exercise && (!selectedExercises || !selectedExercises.length || !selectedExercises.find((e) => e.id === exercise.id))) {
@@ -170,7 +180,7 @@ const EditTraining = () => {
         <Stack direction="row" marginTop="2%">
             <Box width="50%">
                 <Grid container className="stack">
-                    <Box className="formBox">
+                    <Box className="trainingBox">
                         <form>
                             <Stack direction="column">
                                 <Stack direction="row" alignItems="center">
@@ -270,6 +280,7 @@ const EditTraining = () => {
                     fullWidth
                     value={selectedExerciseId}
                     onChange={(e) => setSelectedExerciseId(e.target.value)}
+                    classes={{ select: classes.selectBackground }}
                   >
                     <MenuItem value="" disabled>
                       Wybierz ćwiczenie
@@ -280,16 +291,18 @@ const EditTraining = () => {
                       </MenuItem>
                     ))}
                   </Select>
-                  <Button
+                  <Box display="flex" justifyContent="flex-end" marginLeft="25px">
+                  <button
                     variant="contained"
                     className="registerButton"
                     onClick={handleExerciseChange}
                     disabled={!selectedExerciseId || (selectedExercises && selectedExercises.find((e) => e.id === selectedExerciseId))}
                   >
-                    Dodaj ćwiczenie do treningu
-                  </Button>
+                    DODAJ DO TRENINGU
+                  </button>
+                  </Box>
                 </Stack>
-                <Box display="flex" justifyContent="flex-end">
+                <Box display="flex" justifyContent="flex-end" marginTop="25px">
                   <button type="submit" className="registerButton" onClick={handleUpdate}>
                     AKTUALIZUJ TRENING
                   </button>
@@ -301,32 +314,52 @@ const EditTraining = () => {
       </Box>
       <Box width="50%">
         <Grid container className="stack">
-          <Box className="formBox">
+          <Box className="trainingBox">
             <Stack direction="column">
               <Typography variant="h5" mr="20px" fontWeight="600">
                 LISTA WYBRANYCH ĆWICZEŃ
               </Typography>
-              <TableContainer component={Paper}>
+              <TableContainer component={Paper} sx={{
+                  backgroundColor: "#6422b8",
+              }}>
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>ID</TableCell>
-                      <TableCell>Nazwa ćwiczenia</TableCell>
-                      <TableCell>Opis</TableCell>
-                      <TableCell>Serie</TableCell>
-                      <TableCell>Powtórzenia</TableCell>
-                      <TableCell>Akcja</TableCell>
+                      <TableCell sx={{
+                          color: "#ffd93b",
+                          fontWeight: "bold"
+                      }}>Nazwa</TableCell>
+                      <TableCell sx={{
+                          color: "#ffd93b",
+                          fontWeight: "bold"
+                      }}>Opis</TableCell>
+                      <TableCell sx={{
+                          color: "#ffd93b",
+                          fontWeight: "bold"
+                      }}>Ilość serii</TableCell>
+                      <TableCell sx={{
+                          color: "#ffd93b",
+                          fontWeight: "bold"
+                      }}>Ilość powtórzeń</TableCell>
+                      <TableCell sx={{
+                          color: "#ffd93b",
+                          fontWeight: "bold"
+                      }}>Akcja</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {selectedExercises &&
                       selectedExercises.map((exercise) => (
                         <TableRow key={exercise.id}>
-                          <TableCell>{exercise.id}</TableCell>
-                          <TableCell>{exercise.exercise_name}</TableCell>
-                          <TableCell>{exercise.description}</TableCell>
-                          {/* ... pozostałe pola */}
-                          <TableCell>
+                          <TableCell sx={{
+                                color: "#ffd93b"
+                            }}>{exercise.exercise_name}</TableCell>
+                            <TableCell sx={{
+                                color: "#ffd93b"
+                            }}>{exercise.description}</TableCell>
+                            <TableCell sx={{
+                                color: "#ffd93b"
+                            }}>
                             <Select
                               fullWidth
                               value={exercise.set_amount}
@@ -334,6 +367,7 @@ const EditTraining = () => {
                                 exercise.set_amount = e.target.value;
                                 setSelectedExercises([...selectedExercises]);
                               }}
+                              classes={{ select: classes.selectBackground }}
                             >
                               {Array.from({ length: 10 }, (_, i) => (
                                 <MenuItem key={i} value={i + 1}>
@@ -350,6 +384,7 @@ const EditTraining = () => {
                                 exercise.rep_amount = e.target.value;
                                 setSelectedExercises([...selectedExercises]);
                               }}
+                              classes={{ select: classes.selectBackground }}
                             >
                               {Array.from({ length: 20 }, (_, i) => (
                                 <MenuItem key={i} value={i + 1}>
@@ -359,13 +394,12 @@ const EditTraining = () => {
                             </Select>
                           </TableCell>
                           <TableCell>
-                            <Button
-                              variant="contained"
-                              color="secondary"
+                          <button
+                              className="deleteButton"
                               onClick={() => removeExercise(exercise.id)}
-                            >
+                          >
                               Usuń
-                            </Button>
+                          </button>
                           </TableCell>
                         </TableRow>
                       ))}

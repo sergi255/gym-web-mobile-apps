@@ -94,6 +94,7 @@ function ExercisesTable(props) {
               align={headCell.numeric ? 'right' : 'left'}
               padding={headCell.disablePadding ? 'none' : 'normal'}
               sortDirection={orderBy === headCell.id ? order : false}
+              sx={{color:'#ffd93b'}}
             >
               {headCell.id === 'description' ? (
                 <span>{headCell.label}</span>
@@ -149,7 +150,7 @@ function ExercisesTable(props) {
             variant="subtitle1"
             component="div"
           >
-            {numSelected} selected
+            {numSelected} zaznaczono
           </Typography>
         ) : (
           <Typography
@@ -230,11 +231,11 @@ function ExercisesTable(props) {
                       }}
                     />
                   </TableCell>
-                  <TableCell component="th" id={labelId} scope="row" padding="none">
+                  <TableCell component="th" id={labelId} scope="row" padding="none" sx={{ color: '#ffd93b' }}>
                     {row.exercise_name}
                   </TableCell>
-                  <TableCell>{row.description}</TableCell>
-                  <TableCell align="right">{row.category_name}</TableCell>
+                  <TableCell sx={{ color: '#ffd93b' }}>{row.description}</TableCell>
+                  <TableCell align="right" sx={{ color: '#ffd93b' }}>{row.category_name}</TableCell>
                 </TableRow>
               );
             })}
@@ -248,6 +249,7 @@ function ExercisesTable(props) {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          sx={{color:'#ffd93b'}}
         />
       </TableContainer>
     </Box>

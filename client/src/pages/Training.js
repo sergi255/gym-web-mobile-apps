@@ -22,6 +22,14 @@ import "../css/register.css";
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { makeStyles } from '@mui/styles';
+const useStyles = makeStyles({
+  selectBackground: {
+    background: 'white',
+    borderRadius: '20px',
+    height: '20px'
+  },
+});
 
 const Training = () => {
     const [name, setName] = useState('');
@@ -34,7 +42,7 @@ const Training = () => {
     const [selectedExercises, setSelectedExercises] = useState([]);
     const [selectedExerciseId, setSelectedExerciseId] = useState('');
     const apiUrl = `http://localhost:3001/trainings/add`;
-
+    const classes = useStyles();
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -44,7 +52,6 @@ const Training = () => {
     };
 
     const handleAdd = async (e) => {
-        console.log(selectedExercises);
         e.preventDefault();
         try {
             const response = await axios.post(apiUrl, {
@@ -130,7 +137,8 @@ const Training = () => {
         }
     };
 
-    const handleExerciseChange = () => {
+    const handleExerciseChange = (e) => {
+        e.preventDefault();
         if (selectedExerciseId) {
             const exercise = exerciseList.find((ex) => ex.id === selectedExerciseId);
             if (exercise && !selectedExercises.find((e) => e.id === exercise.id)) {
@@ -149,7 +157,7 @@ const Training = () => {
         <Stack direction="row" marginTop="2%">
             <Box width="50%">
                 <Grid container className="stack">
-                    <Box className="formBox">
+                    <Box className="trainingBox">
                         <form>
                             <Stack direction="column">
                                 <Stack direction="row" alignItems="center">
@@ -249,6 +257,7 @@ const Training = () => {
                                         fullWidth
                                         value={selectedExerciseId}
                                         onChange={(e) => setSelectedExerciseId(e.target.value)}
+                                        classes={{ select: classes.selectBackground }}
                                     >
                                         <MenuItem value="" disabled>
                                             Wybierz ćwiczenie
@@ -282,7 +291,7 @@ const Training = () => {
             </Box>
             <Box width="50%">
                 <Grid container className="stack">
-                    <Box className="formBox">
+                    <Box className="trainingBox">
                         <Stack direction="column">
                             <Typography variant="h5" mr="20px" fontWeight="600">LISTA WYBRANYCH ĆWICZEŃ</Typography>
                             <TableContainer component={Paper} sx={{
@@ -291,10 +300,6 @@ const Training = () => {
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell sx={{
-                                                color: "#ffd93b",
-                                                fontWeight: "bold"
-                                            }}>ID</TableCell>
                                             <TableCell sx={{
                                                 color: "#ffd93b",
                                                 fontWeight: "bold"
@@ -314,15 +319,12 @@ const Training = () => {
                                             <TableCell sx={{
                                                 color: "#ffd93b",
                                                 fontWeight: "bold"
-                                            }}>Usuń</TableCell>
+                                            }}>Akcja</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {selectedExercises.map((exercise) => (
                                             <TableRow key={exercise.id}>
-                                                <TableCell sx={{
-                                                    color: "#ffd93b"
-                                                }}>{exercise.id}</TableCell>
                                                 <TableCell sx={{
                                                     color: "#ffd93b"
                                                 }}>{exercise.exercise_name}</TableCell>
@@ -339,6 +341,7 @@ const Training = () => {
                                                             exercise.set_amount = e.target.value;
                                                             setSelectedExercises([...selectedExercises]);
                                                         }}
+                                                        classes={{ select: classes.selectBackground }}
                                                     >
                                                         {Array.from({ length: 10 }, (_, i) => (
                                                             <MenuItem key={i} value={i + 1}>
@@ -357,6 +360,7 @@ const Training = () => {
                                                             exercise.rep_amount = e.target.value;
                                                             setSelectedExercises([...selectedExercises]);
                                                         }}
+                                                        classes={{ select: classes.selectBackground }}
                                                     >
                                                         {Array.from({ length: 20 }, (_, i) => (
                                                             <MenuItem key={i} value={i + 1}>

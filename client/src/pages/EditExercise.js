@@ -4,7 +4,14 @@ import '../css/register.css';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { makeStyles } from '@mui/styles';
+const useStyles = makeStyles({
+  selectBackground: {
+    background: 'white',
+    borderRadius: '20px',
+    height: '20px'
+  },
+});
 function mapPartNameToNumber(partName) {
     switch (partName) {
       case 'Klatka piersiowa':
@@ -36,7 +43,7 @@ const EditExercise = () => {
     const exerciseId = window.location.pathname.split('/')[3];
     const getExerciseUrl = `http://localhost:3001/exercises/edit/${exerciseId}`;
     const updateExerciseUrl = `http://localhost:3001/exercises/edit/${exerciseId}`;
-
+    const classes = useStyles();
 
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
@@ -157,6 +164,7 @@ const EditExercise = () => {
                                 <Select
                                     value={part}
                                     onChange={(e) => setPart(e.target.value)}
+                                    classes={{ select: classes.selectBackground }}
                                 >
                                     <MenuItem value="1">Klatka piersiowa</MenuItem>
                                     <MenuItem value="2">Plecy</MenuItem>
@@ -179,7 +187,7 @@ const EditExercise = () => {
                                         style: {
                                             background: 'white',
                                             border: 'none',
-                                            height: '150px',
+                                            height: '100px',
                                             borderRadius: '20px',
                                         },
                                     }}

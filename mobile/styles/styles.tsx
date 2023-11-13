@@ -8,6 +8,12 @@ export const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  containerProfile: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ffd93b',
+    width: '100%',
+  },
   label: {
     color: '#ffd93b',
     fontSize: 24,

@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-
 import { Box, Stack, Menu, MenuItem } from '@mui/material';
-import { Link} from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../components/AuthProvider';
 import Cookies from 'js-cookie';
 
-import '../css/navbar.css'
+import '../css/navbar.css';
 
 const AuthorizedNavbar = () => {
   const { setAuth } = useAuth();
   const [anchorEl1, setAnchorEl1] = useState(null);
   const [anchorEl2, setAnchorEl2] = useState(null);
+  const location = useLocation();
 
-  const handleLogout= () => {
+  const handleLogout = () => {
     Cookies.remove('session_data');
     setAuth(false);
-  }
+  };
 
   const handleMenu1Open = (event) => {
     setAnchorEl1(event.currentTarget);
@@ -33,67 +33,72 @@ const AuthorizedNavbar = () => {
     setAnchorEl2(null);
   };
 
-
   return (
     <Box display="flex" justifyContent="flex-end">
-        <Box width="100%">
+      <Box width="100%">
         <Stack direction="row" className="fullLinkBox">
-            <Link className="link" onClick={handleMenu1Open}>
+          <Link className={`link ${location.pathname === '/trainings/add' || location.pathname === '/trainings/browse' ? 'active' : ''}`} onClick={handleMenu1Open}>
             TRENING
-            </Link>
-            <Link className="link" onClick={handleMenu2Open}>
+          </Link>
+          <Link className={`link ${location.pathname === '/exercises/add' || location.pathname === '/exercises/browse' || location.pathname === '/exercises/my' ? 'active' : ''}`} onClick={handleMenu2Open}>
             ĆWICZENIA
-            </Link>
-            <Link className='link' to="/stats">STATYSTYKI</Link>
-            <Link className='link' to="/profile">PROFIL</Link>
-            <Link className='link' to="/" onClick={handleLogout}>WYLOGUJ</Link>
+          </Link>
+          <Link className={`link ${location.pathname === '/stats' ? 'active' : ''}`} to="/stats">
+            STATYSTYKI
+          </Link>
+          <Link className={`link ${location.pathname === '/profile' ? 'active' : ''}`} to="/profile">
+            PROFIL
+          </Link>
+          <Link className="link" to="/" onClick={handleLogout}>
+            WYLOGUJ
+          </Link>
         </Stack>
         <Menu
-        anchorEl={anchorEl1}
-        open={Boolean(anchorEl1)}
-        onClose={handleMenu1Close}
-        anchorOrigin={{
+          anchorEl={anchorEl1}
+          open={Boolean(anchorEl1)}
+          onClose={handleMenu1Close}
+          anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'left',
-        }}
-        transformOrigin={{
+          }}
+          transformOrigin={{
             vertical: 'top',
             horizontal: 'left',
-        }}
+          }}
         >
-        <MenuItem component={Link} to="/trainings/add" onClick={handleMenu1Close}>
+          <MenuItem component={Link} to="/trainings/add" onClick={handleMenu1Close}>
             DODAJ TRENING
-        </MenuItem>
-        <MenuItem component={Link} to="/trainings/browse" onClick={handleMenu1Close}>
+          </MenuItem>
+          <MenuItem component={Link} to="/trainings/browse" onClick={handleMenu1Close}>
             PRZEGLĄDAJ TRENINGI
-        </MenuItem>
+          </MenuItem>
         </Menu>
         <Menu
-        anchorEl={anchorEl2}
-        open={Boolean(anchorEl2)}
-        onClose={handleMenu2Close}
-        anchorOrigin={{
+          anchorEl={anchorEl2}
+          open={Boolean(anchorEl2)}
+          onClose={handleMenu2Close}
+          anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'left',
-        }}
-        transformOrigin={{
+          }}
+          transformOrigin={{
             vertical: 'top',
             horizontal: 'left',
-        }}
+          }}
         >
-        <MenuItem component={Link} to="/exercises/add" onClick={handleMenu2Close}>
+          <MenuItem component={Link} to="/exercises/add" onClick={handleMenu2Close}>
             DODAJ ĆWICZENIA
-        </MenuItem>
-        <MenuItem component={Link} to="/exercises/browse" onClick={handleMenu2Close}>
+          </MenuItem>
+          <MenuItem component={Link} to="/exercises/browse" onClick={handleMenu2Close}>
             PRZEGLĄDAJ ĆWICZENIA
-        </MenuItem>
-        <MenuItem component={Link} to="/exercises/my" onClick={handleMenu2Close}>
+          </MenuItem>
+          <MenuItem component={Link} to="/exercises/my" onClick={handleMenu2Close}>
             MOJE ĆWICZENIA
-        </MenuItem>
+          </MenuItem>
         </Menu>
+      </Box>
     </Box>
-  </Box>
-);
+  );
 };
 
 export default AuthorizedNavbar;

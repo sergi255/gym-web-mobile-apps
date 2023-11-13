@@ -8,8 +8,14 @@ import {
 import axios from 'axios';
 import ExercisesTable from '../components/ExercisesTable'
 import '../css/myExercises.css';
-import { Link, useHistory } from 'react-router-dom';
-
+import { makeStyles } from '@mui/styles';
+const useStyles = makeStyles({
+  selectBackground: {
+    background: 'white',
+    borderRadius: '20px',
+    height: '20px'
+  },
+});
 const MyExercises = () => {
   const [token, setToken] = useState();
   const [exercises, setExercises] = useState([]);
@@ -24,7 +30,7 @@ const MyExercises = () => {
   const getExercisesUrl = 'http://localhost:3001/exercises/getUserExercises';
   const deleteExercisesUrl = 'http://localhost:3001/exercises/deleteExercises';
   const getCategoriesUrl = 'http://localhost:3001/categories';
-
+  const classes = useStyles();
   const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -197,7 +203,8 @@ const MyExercises = () => {
   return (
     <Box width="100%" marginTop="2%">
       <Grid container className="stack">
-      <Box className="filters">
+        <Box className="exercisesTable" overflow="auto">
+        <Box className="filters">
           <label htmlFor="category">Wybierz kategorię: </label>
           <Select
             value={selectedCategory}
@@ -205,6 +212,7 @@ const MyExercises = () => {
               const newCategory = event.target.value;
               setSelectedCategory(newCategory);
             }}
+            classes={{ select: classes.selectBackground }}
           >
             <MenuItem value="all">Wszystkie</MenuItem>
             <MenuItem value="Klatka piersiowa">Klatka piersiowa</MenuItem>
@@ -217,7 +225,6 @@ const MyExercises = () => {
             <MenuItem value="Pośladki">Pośladki</MenuItem>
           </Select>
         </Box>
-        <Box className="exercisesTable" overflow="auto">
           <ExercisesTable
             exercises={exercises}
             selectedCategory={selectedCategory}

@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 import { Box, Stack, Typography } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
-import Cookies from 'js-cookie';
 
 import '../css/navbar.css'
 

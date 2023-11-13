@@ -344,10 +344,10 @@ const Profil = () => {
               </Select>
             </Stack>
             <Box display="flex" justifyContent="flex-end" mt="0.5rem">                        
-              <button  type="submit" className="registerButton" onClick={saveData}>
+              <button type="submit" className="registerButton" onClick={saveData}>
                   ZAPISZ DANE
               </button>
-              <button  type="button" className="registerButton" onClick={deleteUser}>
+              <button type="button" className="registerButton" onClick={deleteUser}>
                   USUŃ KONTO
               </button>
             </Box>
