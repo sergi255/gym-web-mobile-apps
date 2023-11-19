@@ -13,6 +13,7 @@ import BrowseExercises from "./screens/BrowseExercises";
 import MyTrainings from "./screens/MyTrainings";
 import AddTrainings from "./screens/AddTrainings";
 import Logout from "./screens/Logout";
+import Toast from 'react-native-toast-message';
 
 const Drawer = createDrawerNavigator();
 
@@ -23,7 +24,10 @@ export const Layout = () => {
   const handleLogout = async () => {
     const result = await onLogout!();
     if (result && result.error) {
-      alert(result.msg);
+      Toast.show({
+        type: 'error',
+        text1: result.msg,
+      });
     }
   }
 

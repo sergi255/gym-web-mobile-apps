@@ -9,6 +9,9 @@ import axios from 'axios';
 import ExercisesTable from '../components/ExercisesTable'
 import '../css/myExercises.css';
 import { makeStyles } from '@mui/styles';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const useStyles = makeStyles({
   selectBackground: {
     background: 'white',
@@ -51,11 +54,13 @@ const MyExercises = () => {
         const sortedExercises = stableSort(response.data, getComparator(order, orderBy));
         setExercises(sortedExercises);
       } else {
-        alert('Failed to fetch exercise data.');
+        const notify = () => toast("Nie udało się pobrać danych ćwiczeń");
+        notify();
       }
     } catch (error) {
       console.error('Error fetching exercise data:', error);
-      alert('Failed to fetch exercise data.');
+      const notify = () => toast("Nie udało się pobrać danych ćwiczeń");
+      notify();
     }
   };
 
@@ -73,13 +78,15 @@ const MyExercises = () => {
       });
       
       if (response.status === 200) {
-        alert('Exercise deleted successfully.');
+        const notify = () => toast("Ćwiczenie usunięto pomyślnie");
+        notify();
         setSelected([]);
         getExerciseData();
       }
     } catch (error) {
       console.error('Error deleting exercise data:', error);
-      alert('Failed to delete exercise data.');
+      const notify = () => toast("Nie udało się usunąć ćwiczenia");
+      notify();
     }
   };
 
@@ -95,11 +102,13 @@ const MyExercises = () => {
         setCategories(response.data);
       }
       else {
-        alert('Failed to fetch categories data.');
+        const notify = () => toast("Nie udało się pobrać danych katergorii");
+        notify();
       }
     } catch (error) {
       console.error('Error fetching categories data:', error);
-      alert('Failed to fetch categories data.');
+      const notify = () => toast("Nie udało się pobrać danych katergorii");
+      notify();
     }
   };
 
