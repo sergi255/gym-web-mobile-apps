@@ -89,6 +89,8 @@ function setupDatabase() {
     CREATE TABLE IF NOT EXISTS training_exercise (
       training_id INTEGER REFERENCES training(id),
       exercise_id INTEGER REFERENCES exercise(id),
+      set_amount INTEGER NOT NULL,
+      rep_amount INTEGER NOT NULL,
       PRIMARY KEY (training_id, exercise_id)
     );
   `;
@@ -120,8 +122,64 @@ function setupDatabase() {
       }
     })
     .catch(err => console.log(err));
+
+  const checkExecriesQuery = `SELECT COUNT(*) FROM exercise`;
+  client.query(checkExecriesQuery)
+    .then(result => {
+      const rowCount = result.rows[0].count;
+      if (rowCount == 0) {
+        const insertExercisesQuery = `
+          INSERT INTO "exercise" (name, description, category_id) VALUES 
+          ('Wyciskanie sztangi na ławce płaskiej', 'Ćwiczenie polegające na opuszczaniu i unoszeniu sztangi na ławce płaskiej.', 1),
+          ('Rozpiętki', 'Ruchy ramion na boki, trzymając hantle, aby rozciągnąć i wzmocnić klatkę piersiową.', 1),
+          ('Wyciskanie sztangi na ławce skośnej', 'Podobne do wyciskania na ławce płaskiej, ale na ławce skośnej, skupiające się na różnych obszarach klatki piersiowej.', 1),
+          ('Pompki', 'Ćwiczenie wykorzystujące własną masę ciała, w którym ciało jest unoszone i opuszczane, wzmacniając mięśnie klatki piersiowej.', 1),
+          ('Pullover', 'Ćwiczenie, w którym sztanga jest opuszczana za głowę, a następnie unoszona z powrotem, angażując mięśnie klatki piersiowej.', 1),
+          ('Wyciskanie hantli na ławce płaskiej', 'Podobne do wyciskania sztangi, ale z użyciem hantli, co angażuje stabilizatory.', 1),
+          ('Krzyżowanie linek wyciągu dolnego', 'Ruchy ramion wyciągu dolnego na przekrożeniu, izolujące mięśnie klatki piersiowej.', 1),
+          ('Wyciskanie hantli na ławce skośnej', 'Podobne do wyciskania hantli na ławce płaskiej, ale na ławce skośnej, akcentujące różne obszary klatki piersiowej.', 1),
+          ('Pompki diamentowe', 'Wariant pompki, w którym ręce są zbliżone, tworząc kształt diamentu, skupiając się na środkowej części klatki piersiowej.', 1),
+          ('Martwy ciąg', 'Podstawowe ćwiczenie siłowe, angażujące głównie mięśnie pleców, nóg i pośladków.', 2),
+          ('Wiosłowanie hantlami', 'Ćwiczenie wiosłujące, w którym hantle są unoszone ku górze, angażując mięśnie pleców.', 2),
+          ('Podciąganie na drążku szerokim uchwytem', 'Ćwiczenie, w którym ciało jest unoszone ku górze, angażując głównie mięśnie grzbietu.', 2),
+          ('Ściąganie wyciągu górnego do klatki', 'Ruchy ramion wyciągu górnego, izolujące mięśnie górnej części pleców.', 2),
+          ('Wiosłowanie sztangą w opadzie tułowia', 'Wariant wiosłowania sztangą, w którym tułów jest nachylony do przodu, skupiający się na mięśniach środkowej części pleców.', 2),
+          ('Wyciskanie żołnierskie', 'Ćwiczenie wyciskające, w którym sztanga jest unoszona nad głowę, angażując mięśnie barków.', 3),
+          ('Unoszenie hantli bokiem', 'Ruchy ramion polegające na unoszeniu hantli na boki, izolujące mięśnie boczne barków.', 3),
+          ('Arnold Press', 'Kombinacja unoszenia hantli na boki i obracania ramion, angażująca różne partie mięśni barków.', 3),
+          ('Face Pulls', 'Ruchy ramion wyciągu górnego z użyciem liny, skupiające się na mięśniach obręczy barkowej i górnej części pleców.', 3),
+          ('Unoszenie sztangi wzdłuż tułowia', 'Ćwiczenie polegające na unoszeniu sztangi wzdłuż tułowia, angażując mięśnie przednie i boczne barków.', 3),
+          ('Uginanie hantli', 'Podstawowe ćwiczenie na biceps, polegające na uginaniu ramion z hantlami w dłoniach.', 4),
+          ('Uginanie sztangi', 'Podstawowe ćwiczenie na biceps, polegające na uginaniu ramion z sztangą w dłoniach.', 4),
+          ('Hammer Curls', 'Unoszenie hantli w taki sposób, aby dłonie były skierowane ku sobie, angażując różne partie mięśni bicepsa.', 4),
+          ('Bayesian Curl', 'Uginanie przedramienia na lince wyciągu, skupiając się na izolacji mięśni bicepsa.', 4),
+          ('Modlitewnik', 'Uginanie sztangi na modlitewniku, izolując miesięń dwugłowy ramienia.', 4),
+          ('Wyciskanie francuskie', 'Ćwiczenie izolujące triceps, w którym sztanga jest opuszczana za głowę, a następnie unoszona.', 5),
+          ('Rozpiętki na wyciągu górnym', 'Ruchy ramion na wyciągu górnym, izolujące mięśnie tricepsa.', 5),
+          ('Dipy na poręczach', 'Unoszenie ciała na poręczach, angażując głównie tricepsy.', 5),
+          ('Wyciskanie jednorącz hantli nad głową', 'Podobne do wyciskania sztangi, ale z użyciem hantli, skupiające się na mięśniach tricepsa.', 5),
+          ('Crunches', 'Podstawowe ćwiczenie na mięśnie prostownika brzucha, polegające na unoszeniu górnej części tułowia.', 6),
+          ('Leg Raises', 'Unoszenie nóg leżąc na plecach, angażujące mięśnie dolnego odcinka brzucha.', 6),
+          ('Plank', 'Pozycja statyczna utrzymywana na przedramionach i palcach stóp, wzmacniająca mięśnie korpusu, w tym brzucha.', 6),
+          ('Russian Twists', 'Rotacje tułowia w pozycji siedzącej, angażujące mięśnie skośne brzucha.', 6),
+          ('Mountain Climbers', 'Ćwiczenie dynamiczne, w którym nogi są naprzemiennie przyciągane do klatki piersiowej, angażujące mięśnie brzucha i nóg.', 6),
+          ('Bicycle Crunches', 'Unoszenie nóg i obracanie tułowia naprzemiennie, angażujące różne partie mięśni brzucha.', 6),
+          ('Przysiady', 'Podstawowe ćwiczenie na nogi, polegające na uginaniu kolan i bioder.', 7),
+          ('Wypychanie nóg na maszynie', 'Ćwiczenie izolujące mięśnie czworogłowe, polegające na wypychaniu nóg.', 7),
+          ('Wykroki', 'Ćwiczenie angażujące mięśnie nóg i pośladków, polegające na krocznym wysunięciu jednej nogi do przodu.', 7),
+          ('Prostownie nóg na maszynie', 'Ćwiczenie izolujące mięśnie dwugłowe uda, polegające na prostowaniu nóg.', 7),
+          ('Wspięcia na palce', 'Unoszenie ciała na palcach stóp, angażujące mięśnie łydek.', 7),
+          ('Romanian Deadlift', 'Wariant martwego ciągu, skupiający się na pracujących mięśniach pośladków i krygę ledźwiową.', 7),
+          ('Adductor Machine', 'Ćwiczenie izolujące mięśnie przywodziciele, polegające na zamykaniu nóg przeciwko oporowi.', 7);
+          `;
+        return client.query(insertExercisesQuery);
+      }
+    })
+    .catch(err => console.log(err));
 }
 
+
+  
 function verifyToken(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
