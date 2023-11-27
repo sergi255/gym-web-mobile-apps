@@ -126,4 +126,23 @@ export const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center'
   },  
+
+  pickerContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "yourColor", // Podmień to na odpowiedni kolor
+    width: "100%",
+  },
+  selectedExerciseContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "yourColor",
+    width: "100%",
+  },
+  selectedExerciseText: {
+    // Dodaj właściwości dla tekstu
+  },
+  removeExerciseText: {
+    // Dodaj właściwości dla tekstu
+  },
 });
