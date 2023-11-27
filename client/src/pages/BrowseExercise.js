@@ -9,6 +9,9 @@ import axios from 'axios';
 import ExercisesTable from '../components/BrowseExercisesTable'
 import '../css/myExercises.css';
 import { makeStyles } from '@mui/styles';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const useStyles = makeStyles({
   selectBackground: {
     background: 'white',
@@ -50,11 +53,13 @@ const BrowseExercises = () => {
         const sortedExercises = stableSort(response.data, getComparator(order, orderBy));
         setExercises(sortedExercises);
       } else {
-        alert('Failed to fetch exercise data.');
+        const notify = () => toast("Nie udało się pobrać danych ćwiczeń");
+        notify();
       }
     } catch (error) {
       console.error('Error fetching exercise data:', error);
-      alert('Failed to fetch exercise data.');
+      const notify = () => toast("Nie udało się pobrać danych ćwiczeń");
+      notify();
     }
   };
 
@@ -70,11 +75,13 @@ const BrowseExercises = () => {
         setCategories(response.data);
       }
       else {
-        alert('Failed to fetch categories data.');
+        const notify = () => toast("Nie udało się pobrać danych kategorii");
+        notify();
       }
     } catch (error) {
       console.error('Error fetching categories data:', error);
-      alert('Failed to fetch categories data.');
+      const notify = () => toast("Nie udało się pobrać danych kategorii");
+      notify();
     }
   };
 

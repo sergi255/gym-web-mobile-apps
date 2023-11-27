@@ -12,6 +12,8 @@ import format from "date-fns/format";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
 import { Box, Grid, Stack, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import "../css/training.css";
 
@@ -91,11 +93,13 @@ function Kalendarz() {
         setTrainings(transformedTrainings);
       } else {
         console.error("Error getting trainings. Status code:", response.status);
-        alert("Error getting trainings");
+        const notify = () => toast("Nie udało się pobrać danych treningów");
+        notify();
       }
     } catch (error) {
       console.error("Error getting trainings:", error);
-      alert("Error getting trainings");
+      const notify = () => toast("Nie udało się pobrać danych treningów");
+      notify();
     }
   };
 

@@ -4,8 +4,8 @@ import axios from 'axios';
 import { API_URL } from '../app/context/AuthContext';
 import { useAuth } from '../app/context/AuthContext';
 import { useNavigation } from '@react-navigation/native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { styles } from '../styles/styles';
+import Toast from 'react-native-toast-message';
 
 export default function BrowseExercises() {
   const navigation = useNavigation();
@@ -19,11 +19,17 @@ export default function BrowseExercises() {
       if (response.status === 200) {
         setExercises(response.data);
       } else {
-        alert('Failed to fetch exercise data.');
+        Toast.show({
+          type: 'error',
+          text1: 'Nie udało się pobrać danych ćwiczeń',
+        });
       }
     } catch (error) {
       console.error('Error fetching exercise data:', error);
-      alert('Failed to fetch exercise data.');
+      Toast.show({
+        type: 'error',
+        text1: 'Nie udało się pobrać danych ćwiczeń',
+      });
     }
   };
 
@@ -38,11 +44,17 @@ export default function BrowseExercises() {
       if (response.status === 200) {
         getExerciseData();
       } else {
-        alert('Failed to delete exercise data.');
+        Toast.show({
+          type: 'error',
+          text1: 'Nie udało się usunąć ćwiczenia',
+        });
       }
     } catch (error) {
       console.error('Error deleting exercise data:', error);
-      alert('Failed to delete exercise data.');
+      Toast.show({
+        type: 'error',
+        text1: 'Nie udało się usunąć ćwiczenia',
+      });
     }
   }
 

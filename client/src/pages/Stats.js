@@ -4,6 +4,8 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tool
 
 import "../css/stats.css";
 import axios from "axios";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Stats = () => {
   const [token, setToken] = useState();
@@ -43,7 +45,8 @@ const Stats = () => {
       }
     } catch (error) {
       console.error("Error getting trainings:", error);
-      alert("Error getting trainings");
+      const notify = () => toast("Nie udało się pobrać danych treningów");
+      notify();
     }
   };
 
