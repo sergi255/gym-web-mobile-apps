@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, KeyboardAvoidingView, Platform} from 'react-native';
 import { Picker } from '@react-native-picker/picker'
-import { API_URL } from '../app/context/AuthContext'
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from '../styles/styles';
+import Toast from 'react-native-toast-message';
+import { API_URL } from '../app/context/AuthContext';
+
 
 const Profil = () => {
   const navigation = useNavigation();
@@ -16,16 +18,16 @@ const Profil = () => {
   const [weight, setWeight] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
-  const [token, setToken] = useState('');
 
-  const getUserUrl = 'http://localhost:3001/users/getUser';
-  const saveDataUrl = 'http://localhost:3001/users/saveUser';
-  const deleteUserUrl = 'http://localhost:3001/users/deleteUser';
 
+ 
+
+  
 
   const getUserData = async () => {
     try {
-      const response = await axios.get(`${API_URL}/users/getUser`);
+      const response = await axios.get(`${API_URL}/users/getUser`)
+  
       if (response.status === 200) {
         const userData = response.data;
         setLogin(userData.login);
@@ -34,19 +36,28 @@ const Profil = () => {
         setEmail(userData.email);
         setHeight(userData.height);
         setWeight(userData.weight);
-        setAge(userData.age);
+        setAge(userData.age.toString());
         setGender(userData.gender);
+      } else if (response.status === 404) {
+        // Obsługa przypadku, gdy użytkownik nie został znaleziony
+        // Możesz dostosować to do swoich potrzeb
+        console.log('User not found.');
       } else {
-        alert('Failed to fetch user data.');
+        // Obsługa innych przypadków błędów
+        Toast.show({
+          type: 'error',
+          text1: 'Wystąpił błąd podczas pobierania danych użytkownika.',
+        });
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
-      alert('Failed to fetch user data.');
+      if (!error.status === undefined) {
+        console.error('Error fetching user data:', error);
+      }
     }
   };
   
   useEffect(() => {
-    getUserData();}, []);
+    getUserData();}, []); // Pusty dependency array sprawi, że useEffect wywoła się tylko raz, po pierwszym renderowaniu komponentu.
 
   const saveData = async () => {
     const validationErrors = [];
@@ -89,18 +100,14 @@ const Profil = () => {
     }
 
     try {
-      const response = await axios.put(
-        saveDataUrl,
-        {
-          last_name: lastName,
-          first_name: firstName,
-          age,
-          height,
-          weight,
-          gender,
-        },
-        
-      );
+      const response = await axios.put(`${API_URL}/users/saveUser`, {
+        last_name: lastName,
+        first_name: firstName,
+        age,
+        height,
+        weight,
+        gender,
+      });
 
       if (response.status === 200) {
         Alert.alert('User data saved successfully.');
@@ -115,13 +122,12 @@ const Profil = () => {
 
   const deleteUser = async () => {
     try {
-      const response = await axios.delete(deleteUserUrl, {
-        
-      });
-
+      const response = await axios.delete(`${API_URL}/users/deleteUser`);
+  
       if (response.status === 200) {
-        await AsyncStorage.removeItem('session_data');
+        // Pomyślnie usunięto konto, nawiguj do ekranu logowania
         navigation.navigate('Login');
+        
       } else {
         Alert.alert('Failed to delete user data.');
       }
