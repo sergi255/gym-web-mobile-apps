@@ -8,7 +8,7 @@ const Home = () => {
   return (
     <Box width="50%">
         <Stack direction="column" className="stack">
-            <Typography>logo</Typography>
+            <img src={require('../assets/logo.png')} alt="Logo" />
             <Typography fontWeight="600" variant='h1'>DYSZAK</Typography>
             <Typography fontWeight="600" variant='h3'>CARDIO CAMP</Typography>
         </Stack>
