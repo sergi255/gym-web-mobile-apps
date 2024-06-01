@@ -11,3 +11,46 @@ The web application is developed using React, providing a responsive and user-fr
 
 ## Mobile Client
 The mobile application, built with React Native, supports both iOS and Android platforms. It mirrors the web application's functionalities, offering users the ability to register, log in, view his account calendar, manage trainings and exercises, display stats and edit user profile. 
+
+## Project running
+To run project run following commands:
+Install dependencies for the server:
+```
+  cd server
+  npm install 
+```
+Start the server:
+```
+  npm run dev
+```
+Install dependencies for the web client:
+```
+  cd ../client
+  npm install
+```
+Start the web client:
+```
+  npm start
+```
+Install dependencies for the mobile:
+```
+  cd ../mobile
+  npm install
+```
+Start the mobile client:
+```
+  npm start
+```
+And user need to scan QR code from your terminal using ExpoGO app.
+All the commands that help namage the project are from NodeJS.
+## Page screenshots
+1. Training details - left side information about training (date, time), right side exercises assigned to training.
+<img src = "https://github.com/sergi255/gym-web-mobile-apps/blob/main/screenshots/1.jpg" style="width: 75%; display: inline-block;"/>
+2. Training form - with this form user can add or edit your training. On the left side information about training (date, time), on the right side exercises assigned to training.
+<img src = "https://github.com/sergi255/gym-web-mobile-apps/blob/main/screenshots/2.jpg" style="width: 75%; display: inline-block;"/>
+3. Exercise form - by this form user can add your own exercise to database. The required details are the name, category and description of the exercise.
+<img src = "https://github.com/sergi255/gym-web-mobile-apps/blob/main/screenshots/3.jpg" style="width: 75%; display: inline-block;"/>
+4. Stats tabke - in this table user can display information about training saved on his account.
+<img src = "https://github.com/sergi255/gym-web-mobile-apps/blob/main/screenshots/5.jpg" style="width: 75%; display: inline-block;"/>
+More screenshots avalaible in 'screenshots' directory.
+
